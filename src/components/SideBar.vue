@@ -55,7 +55,7 @@
           </transition>
         </router-link>
 
-        <router-link to="/" class="link-navegacao d-flex align-items-center" active-class="ativo">
+        <router-link to="/Documento" class="link-navegacao d-flex align-items-center" active-class="ativo">
           <div class="container-icone">
             <img src="@/assets/icones/documento/documentos_icone.svg" alt="Ícone de documentos" class="icone-barra-lateral">
           </div>

@@ -9,6 +9,13 @@
         <main class="page-content">
 
            <div class="container my-5">
+
+              <div class="return-button-container">
+              <RouterLink to="/Catequizando" class="btn-return">
+                &larr; Voltar
+              </RouterLink>
+              </div>
+
               <h1 class="mb-4 titulo">Cadastro de Catequizandos</h1>
 
               <div>
@@ -315,6 +322,27 @@ border: 1px solid #2b6aff;
  background: #2b6aff;
  color: #ffff;
 }
+
+.btn-return {
+  border: 1.5px solid #0d6efd;
+  color: #0d6efd;
+  background: transparent;
+  border-radius: 25px;
+  padding: 10px 22px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex; 
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+.btn-return:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
 
 @media (max-width: 767px) {
   .foto-area { border-left: none; border-top: 1px solid #ececec; }

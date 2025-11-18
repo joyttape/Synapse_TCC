@@ -9,6 +9,13 @@
         <main class="page-content">
 
            <div class="container my-5">
+
+            <div class="return-button-container">
+              <RouterLink to="/Catequista" class="btn-return">
+                &larr; Voltar
+              </RouterLink>
+            </div>
+
               <h1 class="mb-4 titulo">Cadastro de Catequistas</h1>
 
               <div>
@@ -264,5 +271,29 @@ border: 1px solid #2b6aff;
   .form-card .col-md-9, .form-card .col-md-3 { padding: 16px; }
 }
 
-.form-label { font-size: 13px; font-weight: 500; }
+.form-label { 
+  font-size: 13px; 
+  font-weight: 500;
+}
+
+.btn-return {
+  border: 1.5px solid #0d6efd;
+  color: #0d6efd;
+  background: transparent;
+  border-radius: 25px;
+  padding: 10px 22px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex; 
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+.btn-return:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
 </style>
