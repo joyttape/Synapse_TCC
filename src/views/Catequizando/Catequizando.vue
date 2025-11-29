@@ -1,4 +1,5 @@
 <template>
+  <Loading></Loading>
   <div class="page-wrapper">
     <div class="layout-container">
       
@@ -84,19 +85,26 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(pessoa,index) in listacatequizandos" :key="index">
-                  <td>{{ pessoa.nome }}</td>
-                  <td>{{ pessoa.dataNascimento }}</td>
+                <tr v-for="(pessoa,index) in listaPaginada" :key="index">
+                  <td>{{ pessoa.nomecompleto }}</td>
+                  <td>{{ pessoa.datanascimento }}</td>
                   <td>{{ pessoa.sexo }}</td>
                   <td>{{ pessoa.turma }}</td>
                   <td>{{ pessoa.telefone }}</td>
                   <td>
-                    {{ pessoa.status }}
+                    {{ pessoa.status ? 'Ativo' : 'Inativo'}}
                   </td>
                   <td class="action-buttons">
-                      <button title="Visualizar" class="btn-visualizar"></button>
-                      <button title="Editar" class="btn-editar"></button>
-                      <button title="Deletar" class="btn-deletar"></button>
+                      <RouterLink :to="`/Catequizando/Detalhes/${pessoa.id_catequizando}`">
+                        <button title="Visualizar" class="btn-visualizar"></button>
+                      </RouterLink>
+
+                      <RouterLink :to="`/Catequizando/EditCatequizando/${pessoa.id_catequizando}`">
+                        <button title="Editar" class="btn-editar"></button>
+                      </RouterLink>
+                      
+                    <button title="Deletar" class="btn-deletar" @click="deletarCatequizando(pessoa.id_catequizando)"></button>
+
                   </td>
                 </tr>
               </tbody>
@@ -127,110 +135,174 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import SideBar from '@/components/SideBar.vue';
+import Loading from '@/components/Loading.vue';
+import axios from 'axios';
+import { api } from '@/common/http';
+import Swal from 'sweetalert2'
 
 export default {
-  name: "Catequizandos",
-  components: {SideBar},
-  data(){
-    return{
-      isSideBarRecolhida: true,
-      catequizandos: [], //os dados vão ser guardados aqui
-      pesquisa: "", //inicia sem nada
-      filtroTurma: "Todos",
-      filtroOrdem: "Crescente",
-      filtroSexo: "Todos",
-      filtroStatus: "Todos",
+  name: 'Catequizandos',
 
-      itens: 10,
-      paginaAtual: 1
-    };
+  data() {
+  return {
+    isSideBarRecolhida: true,
+    listacatequizandos: [] as Array<{
+      id_catequizando: number,
+      nomecompleto: string,
+      datanascimento: string,
+      sexo: string,
+      turma: string,
+      telefone: string,
+      status: boolean
+    }>,
+
+    pesquisa: "",
+    filtroTurma: "Todos",
+    filtroSexo: "Todos",
+    filtroStatus: "Todos",
+    filtroOrdem: "Crescente",
+
+    paginaAtual: 1,
+    itens: 8,
+  };
+},
+
+
+  components:{
+    SideBar, Loading
   },
-  computed:{
-   total(){
-    return this.catequizandos.length; //retornando o tamanho 
-   },
+  computed: {
+    listafiltrada() {
+      let lista = [...this.listacatequizandos];
 
-   listafiltrada(){
-      let lista = this.catequizandos;
-
-      if(this.pesquisa){
+      if (this.pesquisa) {
         const termo = this.pesquisa.toLowerCase();
-        lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
+        lista = lista.filter(p =>
+          p.nomecompleto.toLowerCase().includes(termo)
+        );
       }
 
       if (this.filtroTurma !== "Todos") {
         lista = lista.filter(p => p.turma === this.filtroTurma);
       }
 
-
-      if(this.filtroSexo !== "Todos"){
+      if (this.filtroSexo !== "Todos") {
         lista = lista.filter(p => p.sexo === this.filtroSexo);
       }
 
-      if(this.filtroStatus !== "Todos"){
-        lista = lista.filter(p => p.status === this.filtroStatus)
+      if (this.filtroStatus !== "Todos") {
+        const ativo = this.filtroStatus === "Ativo";
+        lista = lista.filter(p => p.status === ativo);
       }
 
       lista.sort((a, b) => {
-        const nomeA = a.nome.toLowerCase();
-        const nomeB = b.nome.toLowerCase();
-        
-        if (this.filtroOrdem === 'Crescente') {
-          return nomeA.localeCompare(nomeB); // A-Z
-        } else { // Decrescente
-          return nomeB.localeCompare(nomeA); // Z-A
-        }
+        const A = a.nomecompleto.toLowerCase();
+        const B = b.nomecompleto.toLowerCase();
+
+        return this.filtroOrdem === "Crescente"
+          ? A.localeCompare(B)
+          : B.localeCompare(A);
       });
 
       return lista;
-   },
+    },
 
-   listacatequizandos(){
-    const inicio = (this.paginaAtual - 1) * this.itens;
-    const fim = inicio + this.itens;
-    return this.listafiltrada.slice(inicio, fim)
-    ;
-   },
+    listaPaginada() {
+      const inicio = (this.paginaAtual - 1) * this.itens;
+      const fim = inicio + this.itens;
+      return this.listafiltrada.slice(inicio, fim);
+    },
 
-   totalPaginas() {
+    totalPaginas() {
       return Math.ceil(this.listafiltrada.length / this.itens);
     },
 
+    total() {
+      return this.listafiltrada.length;
+    },
+
     infoResultados() {
-      const inicio = (this.paginaAtual - 1) * this.itens+ 1;
+      if (this.listafiltrada.length === 0) return "0 - 0";
+
+      const inicio = (this.paginaAtual - 1) * this.itens + 1;
       const fim = Math.min(this.paginaAtual * this.itens, this.listafiltrada.length);
+
       return `${inicio} - ${fim}`;
     }
-
   },
-  mounted(){
-    this.catequizandos = [
-  { nome: "Ana Carolina Souza", dataNascimento: "15/03/2010", sexo: "Feminino", turma: "Crianças", telefone: "(11) 98765-4321", status: "Ativo" },
-  { nome: "Lucas Gabriel Ferreira", dataNascimento: "20/07/2007", sexo: "Masculino", turma: "Jovens", telefone: "(21) 99876-1234", status: "Ativo" },
-  { nome: "Maria Helena Santos", dataNascimento: "03/12/1985", sexo: "Feminino", turma: "Adultos", telefone: "(31) 97654-9876", status: "Inativo" },
-  { nome: "Pedro Álvares Neto", dataNascimento: "10/01/2009", sexo: "Masculino", turma: "Crianças", telefone: "(41) 96543-8765", status: "Ativo" },
-  { nome: "Beatriz Lima e Silva", dataNascimento: "25/05/2005", sexo: "Feminino", turma: "Eucaristia", telefone: "(51) 95432-7654", status: "Ativo" },
-  { nome: "Gabriel Martins Souza", dataNascimento: "09/09/2012", sexo: "Masculino", turma: "Crianças", telefone: "(71) 98564-1298", status: "Ativo" },
-  { nome: "Juliana Torres Almeida", dataNascimento: "22/04/1998", sexo: "Feminino", turma: "Adultos", telefone: "(81) 99431-7789", status: "Inativo" },
-  { nome: "Rafael Costa Nunes", dataNascimento: "05/11/2006", sexo: "Masculino", turma: "Jovens", telefone: "(61) 99752-3301", status: "Ativo" },
-  { nome: "Camila Ferreira Dias", dataNascimento: "28/08/2011", sexo: "Feminino", turma: "Crianças", telefone: "(85) 99640-2234", status: "Ativo" },
-  { nome: "Eduardo Oliveira Pinto", dataNascimento: "19/06/2004", sexo: "Masculino", turma: "Eucaristia", telefone: "(62) 98876-4321", status: "Inativo" },
-  { nome: "Larissa Rocha Melo", dataNascimento: "12/10/1992", sexo: "Feminino", turma: "Adultos", telefone: "(19) 97431-6578", status: "Ativo" },
-  { nome: "Vinícius Alves Ribeiro", dataNascimento: "03/02/2008", sexo: "Masculino", turma: "Crisma", telefone: "(27) 98321-1098", status: "Ativo" },
-  { nome: "Isabela Monteiro Lima", dataNascimento: "30/07/2009", sexo: "Feminino", turma: "Crianças", telefone: "(34) 99654-8897", status: "Ativo" },
-  { nome: "Tiago Mendes Silva", dataNascimento: "15/12/2001", sexo: "Masculino", turma: "Eucaristia", telefone: "(44) 98123-4455", status: "Inativo" },
-  { nome: "Paula Regina Costa", dataNascimento: "09/03/1995", sexo: "Feminino", turma: "Adultos", telefone: "(82) 99561-7789", status: "Ativo" },
-  { nome: "Felipe Duarte Moreira", dataNascimento: "21/05/2006", sexo: "Masculino", turma: "Crisma", telefone: "(98) 98870-6655", status: "Ativo" },
-  { nome: "Sofia Andrade Campos", dataNascimento: "14/01/2011", sexo: "Feminino", turma: "Crianças", telefone: "(48) 99123-7776", status: "Ativo" },
-  { nome: "Ricardo Gomes Tavares", dataNascimento: "02/09/2003", sexo: "Masculino", turma: "Jovens", telefone: "(12) 98999-1010", status: "Inativo" },
-  { nome: "Helena Castro Pires", dataNascimento: "11/11/1989", sexo: "Feminino", turma: "Adultos", telefone: "(13) 99777-8899", status: "Ativo" },
-  { nome: "Bruno Figueiredo Leal", dataNascimento: "06/04/2008", sexo: "Masculino", turma: "Crisma", telefone: "(15) 98811-5566", status: "Ativo" }
-];
+
+  methods: {
+    async buscarCatequizandos() {
+  try {
+    const response = await api.get('/api/Catequizando');
+
+    if (response.status === 200) {
+      this.listacatequizandos = response.data.map((item: any) => ({
+        id_catequizando: item.id_catequizando,
+        nomecompleto: item.usuario?.nome || "",
+        datanascimento: item.usuario?.data_nascimento || "",
+        sexo: item.usuario?.sexo || "",
+        turma: item.turma || "",
+        telefone: item.usuario?.telefone || "",
+        status: item.usuario?.ativo
+      }));
+    }
+  } catch (error) {
+    console.error("Erro ao buscar catequizandos:", error);
+  }
+},
+
+async deletarCatequizando(id: number) {
+  try {
+    // Confirmação com SweetAlert2
+    const confirm = await Swal.fire({
+      title: "Confirmar exclusão",
+      text: "Deseja realmente excluir este catequizando?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sim, excluir",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const response = await api.delete(`/api/Catequizando/${id}`);
+
+    if (response.status === 200 || response.status === 204) {
+
+      await Swal.fire({
+        icon: "success",
+        title: "Excluído!",
+        text: "O catequizando foi removido com sucesso.",
+      });
+
+      this.buscarCatequizandos();
+    }
+
+  } catch (error) {
+    console.error("Erro ao excluir catequizando:", error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Erro",
+      text: "Não foi possível excluir o catequizando.",
+    });
   }
 }
+
+
+
+  },
+
+  mounted() {
+    this.buscarCatequizandos();
+  }
+};
 </script>
+
+
 
 <style>
 .page-wrapper {
@@ -470,7 +542,7 @@ export default {
 
 .table-container tbody tr:hover .action-buttons .btn-deletar{
   background-image: url('/src/assets/icones/acoes/lixo2.svg');
-  transform: scale(1.1);
+  transform: scale(1.0);
 }
 
 .pagination-footer {

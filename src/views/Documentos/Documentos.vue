@@ -7,9 +7,6 @@
       <div class="documentos_pagina" :class="{ 'content-recolhido': isSideBarRecolhida }">
         <main class="page-content">
         
-          <div>
-              <UsuarioCard nome="{{ pessoa.nome }}" email="{{ pessoa.email }}"></UsuarioCard>
-          </div>
 
           <header class="page-header">
             
@@ -115,11 +112,10 @@
 
 <script>
 import SideBar from '@/components/SideBar.vue';
-import UsuarioCard from '@/components/UsuarioCard.vue';
 
 export default {
   name: "Documentos",
-  components: {SideBar, UsuarioCard},
+  components: {SideBar},
   data(){
     return{
       isSideBarRecolhida: true, 

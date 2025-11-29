@@ -46,7 +46,7 @@
           </transition>
         </router-link>
 
-        <router-link to="/" class="link-navegacao d-flex align-items-center" active-class="ativo">
+        <router-link to="/Turma" class="link-navegacao d-flex align-items-center" active-class="ativo">
           <div class="container-icone">
             <img src="@/assets/icones/turma/turma_icone.svg" alt="Ícone de turmas" class="icone-barra-lateral">
           </div>

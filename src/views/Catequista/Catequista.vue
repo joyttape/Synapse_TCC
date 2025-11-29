@@ -7,9 +7,6 @@
       <div class="catequizandos_pagina" :class="{ 'content-recolhido': isSideBarRecolhida }">
         <main class="page-content">
         
-          <div>
-              <UsuarioCard nome="{{ pessoa.nome }}" email="{{ pessoa.email }}"></UsuarioCard>
-          </div>
 
           <header class="page-header">
             
@@ -84,19 +81,23 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(pessoa,index) in listacatequizandos" :key="index">
-                  <td>{{ pessoa.nome }}</td>
-                  <td>{{ pessoa.dataNascimento }}</td>
+                <tr v-for="(pessoa,index) in listaPaginada" :key="index">
+                  <td>{{ pessoa.nomecompleto }}</td>
+                  <td>{{ pessoa.datanascimento }}</td>
                   <td>{{ pessoa.sexo }}</td>
                   <td>{{ pessoa.email }}</td>
                   <td>{{ pessoa.telefone }}</td>
                   <td>
-                    {{ pessoa.status }}
+                    {{ pessoa.status ? 'Ativo' : 'Inativo' }}
                   </td>
                   <td class="action-buttons">
+                     <RouterLink :to="`/Catequista/Detalhes/${pessoa.id_catequista}`">
                       <button title="Visualizar" class="btn-visualizar"></button>
+                    </RouterLink>
+                    <RouterLink :to="`/Catequista/EditCatequista/${pessoa.id_catequista}`">
                       <button title="Editar" class="btn-editar"></button>
-                      <button title="Deletar" class="btn-deletar"></button>
+                    </RouterLink>
+                      <button title="Deletar" class="btn-deletar" @click="deletarCatequista(pessoa.id_catequista)"></button>
                   </td>
                 </tr>
               </tbody>
@@ -127,249 +128,168 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import SideBar from '@/components/SideBar.vue';
-import UsuarioCard from '@/components/UsuarioCard.vue';
+import axios from 'axios';
+import {api} from '@/common/http';
+import Swal from 'sweetalert2';
 
 export default {
-  name: "Catequizandos",
-  components: {SideBar, UsuarioCard},
+  name: "Catequista",
   data(){
     return{
       isSideBarRecolhida: true, 
-      catequizandos: [], //os dados vão ser guardados aqui
-      pesquisa: "", //inicia sem nada
-      filtroTurma: "Todos",
+      listacatequistas: [] as Array <{
+        id_catequista: number,
+        nomecompleto: string,
+        datanascimento: string,
+        sexo: string,
+        email: string,
+        telefone: string,
+        status: boolean
+      }>,
+
+
+      pesquisa: "", 
       filtroOrdem: "Crescente",
       filtroSexo: "Todos",
       filtroStatus: "Todos",
 
-      itens: 10,
+      itens: 8,
       paginaAtual: 1
     };
   },
-  computed:{
-   total(){
-    return this.catequizandos.length; 
-   },
 
-   listafiltrada(){
-      let lista = this.catequizandos;
+  components:{SideBar},
+
+  computed:{
+    listafiltrada(){
+
+      let lista = [...this.listacatequistas];
 
       if(this.pesquisa){
         const termo = this.pesquisa.toLowerCase();
-        lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
+        lista = lista.filter(p =>
+          p.nomecompleto.toLowerCase().includes(termo)
+        );
       }
-
-      if (this.filtroTurma !== "Todos") {
-        lista = lista.filter(p => p.turma === this.filtroTurma);
-      }
-
 
       if(this.filtroSexo !== "Todos"){
-        lista = lista.filter(p => p.sexo === this.filtroSexo);
+        lista = lista.filter(p => p.sexo === this.filtroSexo)
       }
 
       if(this.filtroStatus !== "Todos"){
-        lista = lista.filter(p => p.status === this.filtroStatus)
+        const ativo = this.filtroStatus === "Ativo";
+        lista = lista.filter(p => p.status === ativo)
       }
 
-      lista.sort((a, b) => {
-        const nomeA = a.nome.toLowerCase();
-        const nomeB = b.nome.toLowerCase();
-        
-        if (this.filtroOrdem === 'Crescente') {
-          return nomeA.localeCompare(nomeB); // A-Z
-        } else { // Decrescente
-          return nomeB.localeCompare(nomeA); // Z-A
-        }
-      });
+      lista.sort((a,b) => {
+
+        const A = a.nomecompleto.toLowerCase();
+        const B = b.nomecompleto.toLowerCase();
+
+        return this.filtroOrdem === "Crescente"
+            ? A.localeCompare(B)
+            : B.localeCompare(A);
+
+      })
 
       return lista;
-   },
 
-   listacatequizandos(){
-    const inicio = (this.paginaAtual - 1) * this.itens;
-    const fim = inicio + this.itens;
-    return this.listafiltrada.slice(inicio, fim)
-    ;
-   },
+    },
 
-   totalPaginas() {
+    listaPaginada(){
+      const inicio = (this.paginaAtual - 1) * this.itens;
+      const fim = inicio + this.itens;
+      return this.listafiltrada.slice(inicio, fim);
+    },
+
+    totalPaginas(){
       return Math.ceil(this.listafiltrada.length / this.itens);
     },
 
-    infoResultados() {
-      const inicio = (this.paginaAtual - 1) * this.itens+ 1;
-      const fim = Math.min(this.paginaAtual * this.itens, this.listafiltrada.length);
-      return `${inicio} - ${fim}`;
-    }
+    total(){
+      return this.listafiltrada.length;
+    },
 
+    infoResultados() {
+      if(this.listafiltrada.length === 0) return "0-0";
+
+      const inicio = (this.paginaAtual - 1) * this.itens + 1;
+      const fim = Math.min(this.paginaAtual * this.itens, this.listafiltrada.length);
+
+      return `${inicio} - ${fim}`
+    }
   },
+
+  methods:{
+
+    async buscarCatequistas(){
+
+      try{
+
+        const response = await api.get('/api/Catequista');
+
+        if(response.status === 200){
+          this.listacatequistas = response.data.map((item:any) => ({
+
+            id_catequista: item.id_catequista,
+            nomecompleto: item.usuario?.nome || "",
+            datanascimento: item.usuario?.data_nascimento || "",
+            sexo: item.usuario?.sexo || "",
+            email: item.usuario?.email || "",
+            telefone: item.usuario?.telefone || "",
+            status: item.usuario?.ativo 
+          }));
+        }
+      } catch(error){
+        console.error("Erro ao buscar catequistas: ", error)
+      }
+    },
+
+    async deletarCatequista(id:number){
+
+      try{
+
+        const confirm = await Swal.fire({
+          title: "Confirmar exclusão",
+          text: "Deseja realmente excluir este catequista?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sim, excluir",
+          cancelButtonText: "Cancelar",
+        });
+
+        if(!confirm.isConfirmed) return;
+
+        const response = await api.delete(`/api/Catequista/${id}`);
+
+        if(response.status === 200 || response.status === 204){
+
+          await Swal.fire({
+            icon: "success",
+            title: "Excluído!",
+            text: "Catequista foi removido com sucesso.",
+          });
+
+          this.buscarCatequistas();
+        }
+      } catch(error){
+        console.error("Erro ao excluir catequizando", error)
+
+        Swal.fire({
+          icon: "error",
+          title: "Erro",
+          text: "Não foi possível excluir o catequista.",
+        });
+      }
+    }
+  },
+
   mounted(){
-    this.catequizandos = [
-  {
-    nome: "Paula Cristina Martins",
-    dataNascimento: "12/08/1984",
-    sexo: "Feminino",
-    email: "paula.martins@paroquia.com",
-    telefone: "(11) 99876-5432",
-    status: "Ativo"
-  },
-  {
-    nome: "Rogério Alves Pereira",
-    dataNascimento: "04/02/1979",
-    sexo: "Masculino",
-    email: "rogerio.pereira@paroquia.com",
-    telefone: "(21) 98765-1234",
-    status: "Ativo"
-  },
-  {
-    nome: "Luciana Gomes da Silva",
-    dataNascimento: "19/09/1990",
-    sexo: "Feminino",
-    email: "luciana.silva@paroquia.com",
-    telefone: "(31) 99654-7890",
-    status: "Ativo"
-  },
-  {
-    nome: "Carlos Eduardo Batista",
-    dataNascimento: "23/03/1988",
-    sexo: "Masculino",
-    email: "carlos.batista@paroquia.com",
-    telefone: "(41) 96543-2121",
-    status: "Ativo"
-  },
-  {
-    nome: "Fernanda Lopes Costa",
-    dataNascimento: "07/05/1992",
-    sexo: "Feminino",
-    email: "fernanda.costa@paroquia.com",
-    telefone: "(51) 95432-7650",
-    status: "Ativo"
-  },
-  {
-    nome: "André Luiz Moura",
-    dataNascimento: "11/11/1981",
-    sexo: "Masculino",
-    email: "andre.moura@paroquia.com",
-    telefone: "(61) 98888-4321",
-    status: "Ativo"
-  },
-  {
-    nome: "Patrícia de Souza Lima",
-    dataNascimento: "28/01/1986",
-    sexo: "Feminino",
-    email: "patricia.lima@paroquia.com",
-    telefone: "(62) 97777-1111",
-    status: "Ativo"
-  },
-  {
-    nome: "João Marcos Ferreira",
-    dataNascimento: "05/06/1977",
-    sexo: "Masculino",
-    email: "joao.ferreira@paroquia.com",
-    telefone: "(63) 96666-2222",
-    status: "Afastado"
-  },
-  {
-    nome: "Aline Castro Prado",
-    dataNascimento: "14/12/1994",
-    sexo: "Feminino",
-    email: "aline.prado@paroquia.com",
-    telefone: "(64) 95555-3333",
-    status: "Ativo"
-  },
-  {
-    nome: "Eduardo Henrique Pires",
-    dataNascimento: "22/10/1983",
-    sexo: "Masculino",
-    email: "eduardo.pires@paroquia.com",
-    telefone: "(65) 94444-4444",
-    status: "Ativo"
-  },
-  {
-    nome: "Tatiane Rodrigues Melo",
-    dataNascimento: "08/09/1991",
-    sexo: "Feminino",
-    email: "tatiane.melo@paroquia.com",
-    telefone: "(66) 93333-5555",
-    status: "Ativo"
-  },
-  {
-    nome: "Rafael Moreira Dias",
-    dataNascimento: "30/04/1989",
-    sexo: "Masculino",
-    email: "rafael.dias@paroquia.com",
-    telefone: "(67) 92222-6666",
-    status: "Ativo"
-  },
-  {
-    nome: "Camila Teixeira Ramos",
-    dataNascimento: "09/07/1993",
-    sexo: "Feminino",
-    email: "camila.ramos@paroquia.com",
-    telefone: "(68) 91111-7777",
-    status: "Afastado"
-  },
-  {
-    nome: "Ricardo Oliveira Nunes",
-    dataNascimento: "01/03/1982",
-    sexo: "Masculino",
-    email: "ricardo.nunes@paroquia.com",
-    telefone: "(69) 90000-8888",
-    status: "Ativo"
-  },
-  {
-    nome: "Sandra Regina Carvalho",
-    dataNascimento: "17/05/1987",
-    sexo: "Feminino",
-    email: "sandra.carvalho@paroquia.com",
-    telefone: "(11) 98822-3344",
-    status: "Ativo"
-  },
-  {
-    nome: "Felipe Antunes Rocha",
-    dataNascimento: "27/01/1990",
-    sexo: "Masculino",
-    email: "felipe.rocha@paroquia.com",
-    telefone: "(21) 97744-5566",
-    status: "Ativo"
-  },
-  {
-    nome: "Adriana Souza Barros",
-    dataNascimento: "10/11/1985",
-    sexo: "Feminino",
-    email: "adriana.barros@paroquia.com",
-    telefone: "(31) 96633-7788",
-    status: "Ativo"
-  },
-  {
-    nome: "Marcelo Cunha Ribeiro",
-    dataNascimento: "15/02/1978",
-    sexo: "Masculino",
-    email: "marcelo.ribeiro@paroquia.com",
-    telefone: "(41) 95522-8899",
-    status: "Ativo"
-  },
-  {
-    nome: "Juliana Brito Fernandes",
-    dataNascimento: "06/09/1995",
-    sexo: "Feminino",
-    email: "juliana.fernandes@paroquia.com",
-    telefone: "(51) 94411-9900",
-    status: "Afastado"
-  },
-  {
-    nome: "Gustavo Lima Tavares",
-    dataNascimento: "18/04/1980",
-    sexo: "Masculino",
-    email: "gustavo.tavares@paroquia.com",
-    telefone: "(61) 93300-1122",
-    status: "Ativo"
+    this.buscarCatequistas();
   }
-];
-  }
+
 }
   
 </script>
