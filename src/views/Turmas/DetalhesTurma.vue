@@ -12,122 +12,111 @@
             <header class="top-header">
               <h1>Detalhes da Turma</h1>
               <div class="btn-group">
-                <button class="btn-edit">Editar Turma</button>
-                <button class="btn-delete">Deletar</button>
+                <RouterLink :to="`/Turma/EditTurma/${form.id_turma}`">
+                  <button class="btn-edit">Editar Turma</button>
+                </RouterLink>
+
+                <button class="btn-delete" @click="deletarTurma(form.id_turma)">Deletar</button>
               </div>
             </header>
 
             <div class="card bloco">
               <div class="bloco-body">
-                <div class="row-grid">
-                  <div class="campo">
-                    <label>Nome da Turma</label>
-                    <input class="input" placeholder="Nome da turma" />
+                <div class="row">
+
+                  <div class="col-md-6 mb-4">
+                    <label class="form-label">Nome da Turma <span class="text-danger">*</span></label>
+                    <input v-model="form.nome" type="text" class="form-control" readonly />
                   </div>
 
-                  <div class="campo">
-                    <label>Data</label>
-                    <input class="input" placeholder="dd/mm/yyyy" />
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Data <span class="text-danger">*</span></label>
+                    <input v-model="form.dataturma" type="date" class="form-control" readonly />
                   </div>
 
-                  <div class="campo">
-                    <label>Idade Mínima / Máxima</label><!-- espaçamento ajustado -->
-                    <div class="idade-row" style="gap: 6px;">
-                      <input class="input" placeholder="Min" />
-                      <input class="input" placeholder="Max" />
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Idade Mínima / Máxima</label>
+                    <div class="d-flex gap-2">
+                      <input v-model="form.idademin" type="number" class="form-control" readonly />
+                      <input v-model="form.idademax" type="number" class="form-control" readonly />
+                    </div>
+                  </div>
+
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Quantidade Catequizandos <span class="text-danger">*</span></label>
+                    <input v-model="form.limitecatequizando" type="text" class="form-control" readonly />
+                  </div>
+
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Dia da Semana <span class="text-danger">*</span></label>
+                    <select v-model="form.diasemana" class="form-select" disabled>
+                      <option value="Segunda-feira">Segunda-feira</option>
+                      <option value="Terça-feira">Terça-feira</option>
+                      <option value="Quarta-feira">Quarta-feira</option>
+                      <option value="Quinta-feira">Quinta-feira</option>
+                      <option value="Sexta-feira">Sexta-feira</option>
+                      <option value="Sábado">Sábado</option>
+                      <option value="Domingo">Domingo</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Ativo <span class="text-danger">*</span></label>
+                    <select v-model="form.status" class="form-select" disabled>
+                      <option :value="true">Sim</option>
+                      <option :value="false">Não</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Horário Inic. / Horário Fim</label>
+                    <div class="d-flex gap-2">
+                      <input v-model="form.horarioinicial" type="time" class="form-control" readonly />
+                      <input v-model="form.horariofinal" type="time" class="form-control" readonly />
                     </div>
                   </div>
 
                   <div class="campo full">
                     <label>Descrição</label>
-                    <textarea class="input textarea" placeholder="Escreva aqui"></textarea>
+                    <textarea v-model="form.descricao" class="input textarea" readonly></textarea>
                   </div>
+
                 </div>
               </div>
             </div>
 
             <div class="card bloco">
               <label class="sec-title">Catequista(s)</label>
-              <div class="lista linha">
-                <div class="linha-item">João Pé de Feijão</div>
-                <div class="linha-item">15/03/1990</div>
-                <div class="linha-item">69 00354-0954</div>
-                <div class="linha-item">seuemail@email.com</div>
+
+              <div class="lista tabela">
+                <div v-for="c in catequistas" :key="c.id" class="lista linha">
+                  <div class="linha-item">{{ c.nome }}</div>
+                  <div class="linha-item">{{ c.nascimento }}</div>
+                  <div class="linha-item">{{ c.telefone }}</div>
+                  <div class="linha-item">{{ c.email }}</div>
+                </div>
               </div>
             </div>
 
             <div class="card bloco">
               <label class="sec-title">Catequizandos</label>
+
               <div class="lista tabela">
-                <div class="t-row" v-for="i in 6" :key="i">
-                  <span>João Pé de Feijão</span>
-                  <span>15/03/1990</span>
-                  <span>69 00354-0954</span>
-                  <span>seuemail@email.com</span>
+                <div class="t-row" v-for="p in catequizandos" :key="p.id">
+                  <span>{{ p.nome }}</span>
+                  <span>{{ p.nascimento }}</span>
+                  <span>{{ p.telefone }}</span>
+                  <span>{{ p.email }}</span>
                 </div>
               </div>
             </div>
 
             <div class="encontros-header">
               <h3>Encontros</h3>
-              
-              <RouterLink to="/Turma/DetalhesTurma/Encontro">
-              <button class="btn-add">Adicionar Encontro</button>
-            </RouterLink>
-
+              <RouterLink :to="`/Turma/DetalhesTurma/${form.id_turma}/Encontro`">
+                <button class="btn-add">Adicionar Encontro</button>
+              </RouterLink>
             </div>
-
-            
-          
-
-            <div class="search-box">
-                <div class="search-input-wrapper">
-                    <input class="input" placeholder="Buscar..." />
-                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    viewBox="0 0 16 16">
-                    <path
-                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                    </svg>
-                </div>
-            </div>
-
-            <RouterLink to="/Turma/DetalhesTurma/Encontro/EditEncontro">
-            <div class="cards-encontros">
-            <div class="encontro-card" v-for="i in 6" :key="i">
-                <div class="enc-title">Páscoa</div>
-                <div class="enc-sub">Sala B</div>
-                <div class="enc-date">19/11/2025</div>
-
-                <!-- ÍCONES DE AÇÃO (iguais ao Turmas.vue) -->
-                <div class="icons">
-                <!-- Visualizar -->
-                <svg title="Visualizar" class="icon-action" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                    fill="white" viewBox="0 0 16 16">
-                    <path
-                    d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8A13.133 13.133 0 0 1 8 3.5c2.76 0 5.223 1.72 6.827 4.5A13.133 13.133 0 0 1 8 12.5C5.24 12.5 2.777 10.78 1.173 8z" />
-                    <path
-                    d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM6 8a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" />
-                </svg>
-
-                <!-- Editar -->
-                <svg title="Editar" class="icon-action" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                    fill="white" viewBox="0 0 16 16">
-                    <path
-                    d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-9.193 9.193a.5.5 0 0 1-.168.11l-4 1.5a.5.5 0 0 1-.651-.651l1.5-4a.5.5 0 0 1 .11-.168l9.193-9.193z" />
-                </svg>
-
-                <!-- Deletar -->
-                <svg title="Deletar" class="icon-action" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                    fill="white" viewBox="0 0 16 16">
-                    <path
-                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zM8 6a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6zm2 .5a.5.5 0 0 1 1 0v6a.5.5 0 0 1-1 0V6.5z" />
-                    <path fill-rule="evenodd"
-                    d="M14.5 3a1 1 0 0 1-1 1h-.5v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4H2.5a1 1 0 0 1 0-2H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1z" />
-                </svg>
-                </div>
-            </div>
-            </div>
-            </RouterLink>
 
           </div>
         </main>
@@ -137,17 +126,122 @@
   </div>
 </template>
 
-<script>
-import SideBar from '@/components/SideBar.vue'
-import { RouterLink } from 'vue-router'
+<script lang="ts">
+import SideBar from "@/components/SideBar.vue";
+import { api } from "@/common/http";
+import Swal from "sweetalert2";
 
 export default {
-  components: { SideBar, RouterLink },
+  name: "DetalhesTurmas",
+  components: { SideBar },
+
   data() {
-    return { isSideBarRecolhida: true }
-  }
-}
+    return {
+      isSideBarRecolhida: true,
+
+      form: {
+        id_turma: null,
+        nome: "",
+        descricao: "",
+        dataturma: "",
+        idademin: "",
+        idademax: "",
+        limitecatequizando: "",
+        diasemana: "",
+        status: true,
+        horarioinicial: "",
+        horariofinal: "",
+      },
+
+      catequistas: [],
+      catequizandos: [],
+    };
+  },
+
+  mounted() {
+    this.carregarTurma();
+  },
+
+  methods: {
+    async carregarTurma() {
+      try {
+        const id = this.$route.params.id;
+        const { data } = await api.get(`/api/Turma/${id}`);
+
+        this.form = {
+          id_turma: data.id_turma,
+          nome: data.nome,
+          descricao: data.descricao,
+          dataturma: data.dataturma?.substring(0, 10) || "",
+          idademin: data.idademin,
+          idademax: data.idademax,
+          limitecatequizando: data.limitecatequizando,
+          diasemana: data.diasemana,
+          status: data.status,
+          horarioinicial: data.horarioinicial,
+          horariofinal: data.horariofinal,
+        };
+
+        this.catequistas =
+          data.catequistas?.map((c) => ({
+            nome: c.usuario?.nome,
+            nascimento: c.usuario?.data_nascimento?.substring(0, 10),
+            telefone: c.usuario?.telefone,
+            email: c.usuario?.email,
+          })) || [];
+
+        this.catequizandos =
+          data.catequizandos?.map((c) => ({
+            nome: c.usuario?.nome,
+            nascimento: c.usuario?.data_nascimento?.substring(0, 10),
+            telefone: c.usuario?.telefone,
+            email: c.usuario?.email,
+          })) || [];
+      } catch (err) {
+        console.error("Erro ao carregar turma:", err);
+      }
+    },
+
+    async deletarTurma(id: number) {
+      try {
+        const confirm = await Swal.fire({
+          title: "Confirmar exclusão",
+          text: "Deseja realmente excluir esta turma?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sim, excluir",
+          cancelButtonText: "Cancelar",
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        const response = await api.delete(`/api/Turma/${id}`);
+
+        if (response.status === 200 || response.status === 204) {
+          await Swal.fire({
+            icon: "success",
+            title: "Excluído!",
+            text: "A turma foi removida com sucesso.",
+          });
+
+          this.$router.push("/Turma");
+        }
+      } catch (error) {
+        console.error("Erro ao deletar turma", error);
+
+        Swal.fire({
+          icon: "error",
+          title: "Erro",
+          text: "Não foi possível excluir a turma.",
+        });
+      }
+    },
+  },
+};
 </script>
+
+
+
 
 <style scoped>
 .page-wrapper { display: flex; width: 100%; min-height: 100vh; background: #f7f8fb; }

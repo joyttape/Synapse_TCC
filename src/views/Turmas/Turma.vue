@@ -1,19 +1,18 @@
 <template>
   <div class="page-wrapper">
     <div class="layout-container">
-      
+
       <SideBar v-model:recolhida="isSideBarRecolhida" />
 
       <div class="turma_pagina" :class="{ 'content-recolhido': isSideBarRecolhida }">
         <main class="page-content">
-        
+
           <header class="page-header">
-            
             <div class="header-left">
               <h1 class="title">Turmas ({{ total }})</h1>
               <div class="search-container">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#888" viewBox="0 0 24 24">
-                  <path d="M21 20l-5.9-5.9a7 7 0 10-1.4 1.4L20 21zM5 10a5 5 0 1110 0A5 5 0 015 10z"/>
+                  <path d="M21 20l-5.9-5.9a7 7 0 10-1.4 1.4L20 21zM5 10a5 5 0 1110 0A5 5 0 015 10z" />
                 </svg>
                 <input 
                   type="text"
@@ -25,119 +24,100 @@
             </div>
 
             <div class="header-right">
-                <router-link to="/Turma/TurmaForm" class="btn-add">
-                  Criar Turma
-                </router-link>
+              <router-link to="/Turma/TurmaForm" class="btn-add">
+                Criar Turma
+              </router-link>
             </div>
-        
-              
-              
           </header>
 
-          
           <div class="filter-bar">
+            <div class="filter-item">
+              <label>Turma:</label>
+              <select v-model="filtroTurma">
+                <option value="Todos">Todos</option>
+                <option value="Crianças I">Crianças I</option>
+                <option value="Crianças II">Crianças II</option>
+                <option value="Adolescentes">Adolescentes</option>
+              </select>
+            </div>
 
-  <!-- FILTRO TURMA -->
-  <div class="filter-item">
-    <label>Turma:</label>
-    <select v-model="filtroTurma">
-      <option value="Todos">Todos</option>
-      <option value="Crianças I">Crianças I</option>
-      <option value="Crianças II">Crianças II</option>
-      <option value="Adolescentes">Adolescentes</option>
-    </select>
-  </div>
+            <div class="filter-item">
+              <label>Ordem:</label>
+              <select v-model="filtroOrdem">
+                <option value="Crescente">A → Z</option>
+                <option value="Decrescente">Z → A</option>
+              </select>
+            </div>
 
-  <!-- FILTRO ORDEM -->
-  <div class="filter-item">
-    <label>Ordem:</label>
-    <select v-model="filtroOrdem">
-      <option value="Crescente">A → Z</option>
-      <option value="Decrescente">Z → A</option>
-    </select>
-  </div>
+            <div class="filter-item">
+              <label>Qtd. Catequizandos:</label>
+              <select v-model="filtroQtdCatequizandos">
+                <option value="Todos">Todos</option>
+                <option value="Poucos">Poucos (0–10)</option>
+                <option value="Medio">Médio (11–20)</option>
+                <option value="Muitos">Muitos (21+)</option>
+              </select>
+            </div>
 
-  <!-- QUANTIDADE DE CATEQUIZANDOS -->
-  <div class="filter-item">
-    <label>Qtd. Catequizandos:</label>
-    <select v-model="filtroQtdCatequizandos">
-      <option value="Todos">Todos</option>
-      <option value="Poucos">Poucos (0–10)</option>
-      <option value="Medio">Médio (11–20)</option>
-      <option value="Muitos">Muitos (21+)</option>
-    </select>
-  </div>
+            <div class="filter-item">
+              <label>Qtd. Catequistas:</label>
+              <select v-model="filtroQtdCatequistas">
+                <option value="Todos">Todos</option>
+                <option value="1">1 Catequista</option>
+                <option value="2+">2 Catequistas</option>
+              </select>
+            </div>
 
-  <!-- QUANTIDADE DE CATEQUISTAS -->
-  <div class="filter-item">
-    <label>Qtd. Catequistas:</label>
-    <select v-model="filtroQtdCatequistas">
-      <option value="Todos">Todos</option>
-      <option value="1">1 Catequista</option>
-      <option value="2+">2 ou mais</option>
-    </select>
-  </div>
-
-  <!-- STATUS -->
-  <div class="filter-item">
-    <label>Status:</label>
-    <select v-model="filtroStatus">
-      <option value="Todos">Todos</option>
-      <option value="Ativo">Ativo</option>
-      <option value="Inativo">Inativo</option>
-    </select>
-  </div>
-
-</div>
-
-
-
+            <div class="filter-item">
+              <label>Status:</label>
+              <select v-model="filtroStatus">
+                <option value="Todos">Todos</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+            </div>
+          </div>
 
           <section class="cards-container">
-            <RouterLink 
+            <div 
               v-for="(turma, index) in listaturmas"
               :key="index"
-              to="/Turma/DetalhesTurma" 
-              class="card-link"
+              class="turma-card card-link"
             >
-              <div class="turma-card"> 
-
-                <div class="card-header" :class="'cor-' + ((index % 4) + 1)">
-                  <div class="card-title">
-                    <h3>{{ turma.nome }}</h3> 
-                    <span class="sala">{{ turma.sala }}</span>
-                  </div>
-                  <div class="idade-tag">
-                    {{ turma.idade }}
-                  </div>
+              <div class="card-header" :class="'cor-' + ((index % 4) + 1)">
+                <div class="card-title">
+                  <h3>{{ turma.nome }}</h3>
+                  <span class="sala">{{ turma.sala }}</span>
                 </div>
-
-                <div class="card-body">
-                  <p><strong>Catequista(s):</strong> {{ turma.catequistas }}</p>
-                  <p><strong>Dia:</strong> {{ turma.dia }}</p>
-                  <p><strong>Horário:</strong> {{ turma.horario }}</p>
-
-                  <div class="progress-info">
-                    <span>Catequizandos</span>
-                    <span>{{ turma.total }}/{{ turma.capacidade }}</span>
-                  </div>
-
-                  <div class="progress-bar">
-                    <div 
-                      class="progress" 
-                      :style="{ width: (turma.total / turma.capacidade * 100) + '%' }"
-                    ></div>
-                  </div>
+                <div class="idade-tag">
+                  {{ turma.idade }}
                 </div>
-
-                <div class="card-footer">
-                  <button class="btn-acao visualizar"></button>
-                  <button class="btn-acao editar"></button>
-                  <button class="btn-acao deletar"></button>
-                </div>
-
               </div>
-            </RouterLink>
+
+              <div class="card-body">
+                <p><strong>Catequista(s):</strong> {{ turma.catequistas }}</p>
+                <p><strong>Dia:</strong> {{ turma.dia }}</p>
+                <p><strong>Horário:</strong> {{ turma.horario }}</p>
+
+                <div class="progress-info">
+                  <span>Catequizandos</span>
+                  <span>{{ turma.total }}/{{ turma.capacidade }}</span>
+                </div>
+
+                <div class="progress-bar">
+                  <div
+                    class="progress"
+                    :style="{ width: (turma.total / turma.capacidade * 100) + '%' }"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <RouterLink :to="`/Turma/DetalhesTurma/${turma.id_turma}`">
+                  <button class="btn-acao visualizar"></button>
+                </RouterLink>
+              </div>
+            </div>
           </section>
 
           <div class="pagination-footer">
@@ -157,39 +137,40 @@
               </button>
             </nav>
           </div>
-          
+
         </main>
-      </div>
-    </div>
-  </div>
+      </div> <!-- turma_pagina -->
+
+    </div> <!-- layout-container -->
+  </div> <!-- page-wrapper -->
 </template>
 
-<script>
-import SideBar from '@/components/SideBar.vue';
+<script lang="ts">
+import SideBar from "@/components/SideBar.vue";
+import { api } from "@/common/http";
+import Swal from "sweetalert2";
 
 export default {
   name: "Turmas",
-  components: { SideBar},
+  components: { SideBar },
 
   data() {
-  return {
-    isSideBarRecolhida: true,
+    return {
+      isSideBarRecolhida: true,
+      turmas: [],
+      pesquisa: "",
 
-    turmas: [],
+      filtroTurma: "Todos",
+      filtroOrdem: "Crescente",
+      filtroStatus: "Todos",
 
-    pesquisa: "",
+      filtroQtdCatequizandos: "Todos",
+      filtroQtdCatequistas: "Todos",
 
-    filtroTurma: "Todos",
-    filtroOrdem: "Crescente",
-    filtroStatus: "Todos",
-
-    filtroQtdCatequizandos: "Todos",
-    filtroQtdCatequistas: "Todos",
-
-    itens: 10,
-    paginaAtual: 1
-  };
-},
+      itens: 10,
+      paginaAtual: 1
+    };
+  },
 
   computed: {
     total() {
@@ -197,60 +178,52 @@ export default {
     },
 
     listafiltrada() {
-  let lista = [...this.turmas];
+      let lista = [...this.turmas];
 
-  // 🔍 PESQUISA
-  if (this.pesquisa.trim() !== "") {
-    const termo = this.pesquisa.toLowerCase();
-    lista = lista.filter(t =>
-      t.nome.toLowerCase().includes(termo) ||
-      t.catequistas.toLowerCase().includes(termo) ||
-      t.dia.toLowerCase().includes(termo)
-    );
-  }
+      if (this.pesquisa.trim() !== "") {
+        const termo = this.pesquisa.toLowerCase();
+        lista = lista.filter(t =>
+          t.nome.toLowerCase().includes(termo) ||
+          t.catequistas.toLowerCase().includes(termo) ||
+          t.dia.toLowerCase().includes(termo)
+        );
+      }
 
-  // 🎯 FILTRO POR TURMA
-  if (this.filtroTurma !== "Todos") {
-    lista = lista.filter(t => t.nome === this.filtroTurma);
-  }
+      if (this.filtroTurma !== "Todos") {
+        lista = lista.filter(t => t.nome === this.filtroTurma);
+      }
 
-  // 🎯 FILTRO STATUS
-  if (this.filtroStatus !== "Todos") {
-    lista = lista.filter(t => t.status === this.filtroStatus);
-  }
+      if (this.filtroStatus !== "Todos") {
+        lista = lista.filter(t => t.status === this.filtroStatus);
+      }
 
-  // 🎯 FILTRO QUANTIDADE DE CATEQUIZANDOS
-  if (this.filtroQtdCatequizandos !== "Todos") {
-    lista = lista.filter(t => {
-      if (this.filtroQtdCatequizandos === "Poucos") return t.total <= 10;
-      if (this.filtroQtdCatequizandos === "Medio") return t.total > 10 && t.total <= 20;
-      if (this.filtroQtdCatequizandos === "Muitos") return t.total > 20;
-    });
-  }
+      if (this.filtroQtdCatequizandos !== "Todos") {
+        lista = lista.filter(t => {
+          if (this.filtroQtdCatequizandos === "Poucos") return t.total <= 10;
+          if (this.filtroQtdCatequizandos === "Medio") return t.total > 10 && t.total <= 20;
+          if (this.filtroQtdCatequizandos === "Muitos") return t.total > 20;
+        });
+      }
 
-  // 🎯 FILTRO QUANTIDADE DE CATEQUISTAS
-  if (this.filtroQtdCatequistas !== "Todos") {
-    lista = lista.filter(t => {
-      const qtd = t.catequistas.split("&").length;
-      if (this.filtroQtdCatequistas === "1") return qtd === 1;
-      if (this.filtroQtdCatequistas === "2+") return qtd >= 2;
-    });
-  }
+      if (this.filtroQtdCatequistas !== "Todos") {
+        lista = lista.filter(t => {
+          const qtd = t.catequistas.split("&").length;
+          if (this.filtroQtdCatequistas === "1") return qtd === 1;
+          if (this.filtroQtdCatequistas === "2+") return qtd >= 2;
+        });
+      }
 
-  // 🔠 ORDEM (A → Z ou Z → A)
-  lista.sort((a, b) => {
-    const A = a.nome.toLowerCase();
-    const B = b.nome.toLowerCase();
-    return this.filtroOrdem === "Crescente"
-      ? A.localeCompare(B)
-      : B.localeCompare(A);
-  });
+      lista.sort((a, b) => {
+        const A = a.nome.toLowerCase();
+        const B = b.nome.toLowerCase();
+        return this.filtroOrdem === "Crescente"
+          ? A.localeCompare(B)
+          : B.localeCompare(A);
+      });
 
-  return lista;
-},
+      return lista;
+    },
 
-
-    // PAGINAÇÃO
     listaturmas() {
       const inicio = (this.paginaAtual - 1) * this.itens;
       const fim = inicio + this.itens;
@@ -270,203 +243,45 @@ export default {
   },
 
   mounted() {
-
-    this.turmas = [
-  {
-    nome: "Crianças I",
-    sala: "Sala B",
-    idade: "3 - 9",
-    catequistas: "João Zé da Souza & Maria Paixão",
-    dia: "Sábado",
-    horario: "14:00 - 15:30",
-    status: "Ativo",
-    total: 20,
-    capacidade: 30
-  },
-  {
-    nome: "Crianças II",
-    sala: "Sala C",
-    idade: "10 - 12",
-    catequistas: "Ana Lúcia",
-    dia: "Domingo",
-    horario: "08:00 - 09:30",
-    status: "Inativo",
-    total: 12,
-    capacidade: 25
-  },
-  {
-    nome: "Adolescentes",
-    sala: "Sala A",
-    idade: "13 - 15",
-    catequistas: "Marcos Paulo",
-    dia: "Sábado",
-    horario: "16:00 - 17:30",
-    status: "Ativo",
-    total: 18,
-    capacidade: 30
+    this.carregarTurmas();
   },
 
-  // 🔥 NOVAS TURMAS
+  methods: {
+    async carregarTurmas() {
+      try {
+        const { data } = await api.get("/api/Turma");
 
-  {
-    nome: "Pré-Eucaristia",
-    sala: "Sala D",
-    idade: "7 - 9",
-    catequistas: "Carlos Mendes & Júlia Vieira",
-    dia: "Sábado",
-    horario: "09:00 - 10:30",
-    status: "Ativo",
-    total: 22,
-    capacidade: 28
-  },
-  {
-    nome: "Crisma I",
-    sala: "Sala E",
-    idade: "15 - 17",
-    catequistas: "Patrícia Gomes",
-    dia: "Domingo",
-    horario: "10:00 - 11:30",
-    status: "Ativo",
-    total: 17,
-    capacidade: 25
-  },
-  {
-    nome: "Crisma II",
-    sala: "Sala F",
-    idade: "15 - 17",
-    catequistas: "Roberto Dias & Fernanda Lima",
-    dia: "Sábado",
-    horario: "11:00 - 12:30",
-    status: "Inativo",
-    total: 9,
-    capacidade: 20
-  },
-  {
-    nome: "Jovens I",
-    sala: "Sala G",
-    idade: "16 - 20",
-    catequistas: "Thiago Ramos",
-    dia: "Domingo",
-    horario: "17:00 - 18:30",
-    status: "Ativo",
-    total: 14,
-    capacidade: 25
-  },
-  {
-    nome: "Jovens II",
-    sala: "Sala H",
-    idade: "18 - 25",
-    catequistas: "Amanda Borges & Danilo Costa",
-    dia: "Sábado",
-    horario: "18:00 - 19:30",
-    status: "Ativo",
-    total: 27,
-    capacidade: 35
-  },
-  {
-    nome: "Adultos",
-    sala: "Sala I",
-    idade: "25+",
-    catequistas: "Helena Souza",
-    dia: "Domingo",
-    horario: "15:00 - 16:30",
-    status: "Ativo",
-    total: 8,
-    capacidade: 20
-  },
-  {
-    nome: "Catequese Familiar",
-    sala: "Salão Paroquial",
-    idade: "Todas",
-    catequistas: "Equipe Pastoral",
-    dia: "Sábado",
-    horario: "08:00 - 09:30",
-    status: "Inativo",
-    total: 30,
-    capacidade: 60
-  },
-  {
-    nome: "Pré-Eucaristia",
-    sala: "Sala D",
-    idade: "7 - 9",
-    catequistas: "Carlos Mendes & Júlia Vieira",
-    dia: "Sábado",
-    horario: "09:00 - 10:30",
-    status: "Ativo",
-    total: 22,
-    capacidade: 28
-  },
-  {
-    nome: "Crisma I",
-    sala: "Sala E",
-    idade: "15 - 17",
-    catequistas: "Patrícia Gomes",
-    dia: "Domingo",
-    horario: "10:00 - 11:30",
-    status: "Ativo",
-    total: 17,
-    capacidade: 25
-  },
-  {
-    nome: "Crisma II",
-    sala: "Sala F",
-    idade: "15 - 17",
-    catequistas: "Roberto Dias & Fernanda Lima",
-    dia: "Sábado",
-    horario: "11:00 - 12:30",
-    status: "Inativo",
-    total: 9,
-    capacidade: 20
-  },
-  {
-    nome: "Jovens I",
-    sala: "Sala G",
-    idade: "16 - 20",
-    catequistas: "Thiago Ramos",
-    dia: "Domingo",
-    horario: "17:00 - 18:30",
-    status: "Ativo",
-    total: 14,
-    capacidade: 25
-  },
-  {
-    nome: "Jovens II",
-    sala: "Sala H",
-    idade: "18 - 25",
-    catequistas: "Amanda Borges & Danilo Costa",
-    dia: "Sábado",
-    horario: "18:00 - 19:30",
-    status: "Ativo",
-    total: 27,
-    capacidade: 35
-  },
-  {
-    nome: "Adultos",
-    sala: "Sala I",
-    idade: "25+",
-    catequistas: "Helena Souza",
-    dia: "Domingo",
-    horario: "15:00 - 16:30",
-    status: "Ativo",
-    total: 8,
-    capacidade: 20
-  },
-  {
-    nome: "Catequese Familiar",
-    sala: "Salão Paroquial",
-    idade: "Todas",
-    catequistas: "Equipe Pastoral",
-    dia: "Sábado",
-    horario: "08:00 - 09:30",
-    status: "Inativo",
-    total: 30,
-    capacidade: 60
-  }
-];
+        this.turmas = data.map(t => ({
+          id_turma: t.id_turma,
+          nome: t.nome,
+          sala: t.descricao || "Sala não informada",
+          idade: `${t.idademin} - ${t.idademax}`,
 
+          catequistas: t.catequistas && t.catequistas.length > 0
+            ? t.catequistas.map(c => c.usuario?.nome).join(" & ")
+            : "Sem catequistas",
+
+          dia: t.diasemana,
+          horario: `${t.horarioinicial} - ${t.horariofinal}`,
+          status: "Ativo",
+
+          total: t.catequizandos?.length || 0,
+          capacidade: t.limitecatequizando || t.limiteCatequizandos || 0
+        }));
+
+      } catch (error) {
+        console.error("Erro ao carregar turmas:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Erro",
+          text: "Não foi possível carregar as turmas."
+        });
+      }
+    }
   }
 };
 </script>
+
 
 
 <style>
@@ -653,7 +468,6 @@ export default {
   margin-top: 20px;
 }
 
-/* Card */
 .turma-card {
   width: 100%;
   background: #fff;
@@ -664,7 +478,6 @@ export default {
   flex-direction: column;
 }
 
-/* Cabeçalho com cores diferentes */
 .card-header {
   padding: 15px 18px;
   display: flex;
@@ -689,7 +502,6 @@ export default {
   opacity: 0.9;
 }
 
-/* Tag de idade */
 .idade-tag {
   background: rgba(255,255,255,0.25);
   padding: 5px 10px;
@@ -702,7 +514,6 @@ export default {
   text-decoration: none;
 }
 
-/* Corpo */
 .card-body {
   padding: 18px;
   color: #555;
@@ -714,7 +525,6 @@ export default {
   margin: 5px 0;
 }
 
-/* Progresso */
 .progress-info {
   display: flex;
   justify-content: space-between;
@@ -735,7 +545,6 @@ export default {
   border-radius: 20px;
 }
 
-/* Rodapé */
 .card-footer {
   display: flex;
   gap: 15px;
@@ -755,11 +564,7 @@ export default {
   cursor: pointer;
 }
 
-/* Ícones */
 .visualizar { background-image: url('/src/assets/icones/acoes/olho2.svg'); }
-.editar { background-image: url('/src/assets/icones/acoes/edit2.svg'); }
-.deletar { background-image: url('/src/assets/icones/acoes/lixo2.svg'); }
-
 
 .pagination-footer {
   display: flex;

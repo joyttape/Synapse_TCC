@@ -277,12 +277,10 @@ async function salvar() {
   }
 };
 
-    console.log("🟦 Payload enviado:", payload);
 
     const response = await api.put(`/api/Catequista/${id}`, payload);
-    console.log("🟢 Resposta do PUT:", response.data);
 
-      Swal.fire({
+    Swal.fire({
     icon: "success",
     title: "Atualizado!",
     text: "Os dados do catequista foram salvos com sucesso.",

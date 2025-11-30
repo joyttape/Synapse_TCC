@@ -1,6 +1,5 @@
 <template>
   <div class="page-wrapper">
-    <!-- botão voltar -->
     <RouterLink to="/Turma/DetalhesTurma/Encontro" class="btn-voltar">← Voltar para Detalhes de Turma</RouterLink>
 
     <h1 class="titulo">Editar Encontro</h1>
@@ -26,7 +25,6 @@
       </div>
     </div>
 
-    <!-- Lista de catequizandos -->
     <div class="list-section">
       <div class="list-header">
         <h3>Catequizandos</h3>
@@ -57,7 +55,6 @@
       <button class="btn-salvar">Salvar Encontro</button>
     </div>
 
-    <!-- MODAL -->
     <div v-if="modal" class="modal-overlay" @click.self="modal=false">
       <div class="modal-card">
         <div class="modal-search">
@@ -94,7 +91,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   data() {
     return {

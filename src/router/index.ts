@@ -14,6 +14,7 @@ import DetalheDoc from '@/views/Documentos/DetalheDoc.vue'
 import Turma from '@/views/Turmas/Turma.vue'
 import TurmaForm from '@/views/Turmas/TurmaForm.vue'
 import DetalhesTurma from '@/views/Turmas/DetalhesTurma.vue'
+import EditarTurma from '@/views/Turmas/EditarTurma.vue'
 import Encontro from '@/views/Turmas/Encontro.vue'
 import EditarEncontro from '@/views/Turmas/EditarEncontro.vue'
 
@@ -76,7 +77,7 @@ const router = createRouter({
       component: DocumentosForm
     },
     {
-      path: '/Documento/DetalheDoc',
+      path: '/Documento/DetalheDoc/:id',
       name: 'DetalhesDoc',
       component: DetalheDoc
     },
@@ -89,10 +90,16 @@ const router = createRouter({
       path: '/Turma/TurmaForm',
       name: 'TurmaForm',
       component: TurmaForm
-    },{
-      path: '/Turma/DetalhesTurma',
+    },
+    {
+      path: '/Turma/DetalhesTurma/:id',
       name: 'DetalhesTurma',
       component: DetalhesTurma
+    },
+    {
+      path: '/Turma/EditTurma/:id',
+      name: 'EditTurma',
+      component: EditarTurma
     },
     {
       path: '/Turma/DetalhesTurma/Encontro',

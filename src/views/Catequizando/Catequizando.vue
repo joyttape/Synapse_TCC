@@ -148,6 +148,7 @@ export default {
   data() {
   return {
     isSideBarRecolhida: true,
+    turmasMapa: {} as Record<number, string>,
     listacatequizandos: [] as Array<{
       id_catequizando: number,
       nomecompleto: string,
@@ -239,24 +240,38 @@ export default {
     const response = await api.get('/api/Catequizando');
 
     if (response.status === 200) {
-      this.listacatequizandos = response.data.map((item: any) => ({
+      this.listacatequizandos = response.data.map((item: any) => {
+      const idTurma = item.catequizandoTurmas?.[0]?.id_turma_fk ?? null;
+
+      return {
         id_catequizando: item.id_catequizando,
         nomecompleto: item.usuario?.nome || "",
         datanascimento: item.usuario?.data_nascimento || "",
         sexo: item.usuario?.sexo || "",
-        turma: item.turma || "",
+        turma: idTurma ? this.turmasMapa[idTurma] : "Sem turma",   // ← AQUI
         telefone: item.usuario?.telefone || "",
         status: item.usuario?.ativo
-      }));
+      };
+    });
+
     }
   } catch (error) {
     console.error("Erro ao buscar catequizandos:", error);
   }
 },
 
+async buscarTurmas() {
+  const response = await api.get("/api/Turma");
+  this.turmasMapa = {};
+
+  response.data.forEach((t: any) => {
+    this.turmasMapa[t.id_turma] = t.nome; 
+  });
+},
+
+
 async deletarCatequizando(id: number) {
   try {
-    // Confirmação com SweetAlert2
     const confirm = await Swal.fire({
       title: "Confirmar exclusão",
       text: "Deseja realmente excluir este catequizando?",
@@ -297,7 +312,9 @@ async deletarCatequizando(id: number) {
   },
 
   mounted() {
+    this.buscarTurmas().then(() => {
     this.buscarCatequizandos();
+  });
   }
 };
 </script>

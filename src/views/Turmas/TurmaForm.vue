@@ -26,7 +26,7 @@
 
                   <div class="col-md-3 mb-4">
                     <label class="form-label">Data <span class="text-danger">*</span></label>
-                    <input v-model="form.data" type="text" class="form-control" placeholder="dd/mm/aaaa" />
+                    <input v-model="form.data" type="date" class="form-control" placeholder="dd/mm/aaaa" />
                   </div>
 
                   <div class="col-md-3 mb-4">
@@ -34,6 +34,40 @@
                     <div class="d-flex gap-2">
                       <input v-model.number="form.idadeMin" type="number" min="0" class="form-control" placeholder="Mín" />
                       <input v-model.number="form.idadeMax" type="number" min="0" class="form-control" placeholder="Máx" />
+                    </div>
+                  </div>
+
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Quantidade Catequizandos: <span class="text-danger">*</span></label>
+                    <input v-model="form.quantidadecatequizando" type="text" class="form-control" placeholder="0" />
+                  </div>
+
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Dia da Semana: <span class="text-danger">*</span></label>
+                    <select v-model="form.diasemana" class="form-select">
+                      <option value="Segunda-feira">Segunda-feira</option>
+                      <option value="Terça-feira">Terça-feira</option>
+                      <option value="Quarta-feira">Quarta-feira</option>
+                      <option value="Quinta-feira">Quinta-feira</option>
+                      <option value="Sexta-feira">Sexta-feira</option>
+                      <option value="Sábado">Sábado</option>
+                      <option value="Domingo">Domingo</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3 mb-4">
+                          <label class="form-label">Ativo <span class="text-danger">*</span></label>
+                          <select v-model="form.ativo" class="form-select input-small">
+                            <option :value=true>Sim</option>
+                            <option :value=false>Não</option>
+                          </select>
+                  </div>
+
+                  <div class="col-md-3 mb-4">
+                    <label class="form-label">Horário Inic. / Horario Fim</label>
+                    <div class="d-flex gap-2">
+                      <input v-model="form.horarioini" type="time" class="form-control" placeholder="00:00" />
+                      <input v-model="form.horariofim" type="time" class="form-control" placeholder="00:00" />
                     </div>
                   </div>
 
@@ -112,7 +146,6 @@
         </main>
       </div>
 
-      <!-- Modal (fullscreen-like overlay) -->
       <transition name="fade">
         <div class="modal-overlay" v-if="modalOpen" @click.self="closeModal">
           <div class="modal-card">
@@ -129,10 +162,9 @@
               <ul>
                 <li v-for="person in modalFiltered" :key="person.id" class="modal-row">
                   <div class="row-left">
-                    <div class="avatar" :style="{ 'background-image': 'url(' + person.avatar + ')' }"></div>
                     <div class="meta">
                       <div class="name">{{ person.name }}</div>
-                      <div class="sub">{{ person.dob }} • {{ person.gender }}</div>
+                      <div class="sub">{{ person.datanascimento }} • {{ person.sexo }} - {{ person.email }}</div>
                     </div>
                   </div>
                   <div class="row-right">
@@ -154,133 +186,235 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import SideBar from '@/components/SideBar.vue';
-import { RouterLink } from 'vue-router';
+import { api } from '@/common/http';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'TurmaForm',
-  components: { SideBar, RouterLink },
+  components: { SideBar },
+
   data() {
     return {
       isSideBarRecolhida: true,
+
       form: {
         nome: '',
+        descricao: '',
         data: '',
         idadeMin: null,
         idadeMax: null,
-        descricao: ''
+        horarioini: '',
+        horariofim: '',
+        diasemana: '',
+        quantidadecatequizando: null,
+        limitecatequizando: null,
+        ativo: null,
+        id_comunidade_fk: null
       },
 
-      // Catequistas (chips, max 2)
-      catequistasAll: [
-        { id: 1, name: 'João Zé da Silva', role: 'Coordenador' },
-        { id: 2, name: 'Maria Rosana', role: 'Auxiliar' },
-        { id: 3, name: 'Carlos Pereira', role: 'Catequista' }
-      ],
+      catequistas: [],
+      catequistasFiltered: [],
       catequistasSelected: [],
       catequistaSearch: '',
       openCatequistaDropdown: false,
-      catequistasFiltered: [],
 
-      // Modal / catequizandos
+      catequizandos: [],
+      catequizandosSelected: [],
       modalOpen: false,
       modalSearch: '',
+      modalFiltered: [],
       modalSelectedIds: [],
-      catequizandosAll: [],
-      catequizandosSelected: [],
-      modalFiltered: []
+
+      comunidades: []
     };
   },
+
   mounted() {
-    // inicializa filtros
-    this.catequistasFiltered = this.catequistasAll;
-
-    // dados fictícios de catequizandos (pode vir da API)
-    const avatarA = '/mnt/data/a6dcc1ca-a257-44d7-965d-ed89fb53eca8.png';
-    const avatarB = '/mnt/data/e8e8604a-b110-4fce-8836-12f1054e2e0c.png';
-
-    this.catequizandosAll = Array.from({ length: 12 }).map((_, i) => ({
-      id: i + 1,
-      name: ['João Pé de Feijão', 'Ana Clara', 'Pedro Silva', 'Mariana Costa', 'Lucas Rocha', 'Beatriz Lima'][i % 6] + (i > 5 ? ' ' + (i - 5) : ''),
-      dob: '15/03/1990',
-      gender: i % 2 === 0 ? 'Masculino' : 'Feminino',
-      avatar: i % 2 === 0 ? avatarA : avatarB
-    }));
-
-    this.modalFiltered = this.catequizandosAll;
+    this.carregarCatequistas();
+    this.carregarCatequizandos();
+    this.carregarComunidades();
   },
+
   methods: {
-    // Catequistas
-    filterCatequistas() {
-      const q = this.catequistaSearch.trim().toLowerCase();
-      if (!q) this.catequistasFiltered = this.catequistasAll;
-      else this.catequistasFiltered = this.catequistasAll.filter(c => c.name.toLowerCase().includes(q));
+    async carregarCatequistas() {
+      const { data } = await api.get('/api/Catequista');
+      this.catequistas = data.map(c => ({
+        id: c.id_catequista,
+        name: c.usuario?.nome || 'Sem nome'
+      }));
+      this.catequistasFiltered = this.catequistas;
     },
+
+    filterCatequistas() {
+      const term = this.catequistaSearch.toLowerCase();
+      this.catequistasFiltered = this.catequistas.filter(c =>
+        c.name.toLowerCase().includes(term)
+      );
+    },
+
     toggleCatequista(c) {
       const exists = this.catequistasSelected.find(x => x.id === c.id);
       if (exists) {
         this.catequistasSelected = this.catequistasSelected.filter(x => x.id !== c.id);
       } else {
-        if (this.catequistasSelected.length >= 2) {
-          // opcional: notificar usuário
-          return;
-        }
+        if (this.catequistasSelected.length >= 2) return;
         this.catequistasSelected.push(c);
       }
       this.catequistaSearch = '';
       this.openCatequistaDropdown = false;
     },
+
     removeCatequista(id) {
       this.catequistasSelected = this.catequistasSelected.filter(c => c.id !== id);
     },
 
-    // Modal / catequizandos
+    async carregarCatequizandos() {
+    const { data } = await api.get('/api/Catequizando');
+
+  this.catequizandos = data.map(p => ({
+    id: p.id_catequizando,
+    name: p.usuario?.nome || 'Sem nome',
+    datanascimento: p.usuario?.data_nascimento || '',
+    sexo: p.usuario?.sexo || '',
+    email: p.usuario?.email || '',
+    telefone: p.usuario?.telefone || ''
+  }));
+
+  this.modalFiltered = this.catequizandos;
+    },
+
+
     openModal() {
       this.modalOpen = true;
-      this.$nextTick(() => {
-        this.modalSearch = '';
-        this.modalSelectedIds = this.catequizandosSelected.map(p => p.id);
-        this.modalFiltered = this.catequizandosAll;
-      });
+      this.modalFiltered = this.catequizandos;
     },
+
     closeModal() {
       this.modalOpen = false;
     },
+
     filterModal() {
-      const q = this.modalSearch.trim().toLowerCase();
-      if (!q) this.modalFiltered = this.catequizandosAll;
-      else this.modalFiltered = this.catequizandosAll.filter(p => p.name.toLowerCase().includes(q));
+      const term = this.modalSearch.toLowerCase();
+      this.modalFiltered = this.catequizandos.filter(p =>
+        p.name.toLowerCase().includes(term)
+      );
     },
+
     clearModalSearch() {
       this.modalSearch = '';
-      this.filterModal();
+      this.modalFiltered = this.catequizandos;
     },
+
     addSelectedToTurma() {
-      const selected = this.modalSelectedIds.map(id => this.catequizandosAll.find(p => p.id === id)).filter(Boolean);
-      // evita duplicatas
-      const idsSelecionados = new Set(this.catequizandosSelected.map(p => p.id));
-      selected.forEach(s => { if (!idsSelecionados.has(s.id)) this.catequizandosSelected.push(s); });
+      this.modalSelectedIds.forEach(id => {
+        const person = this.catequizandos.find(p => p.id === id);
+        if (person && !this.catequizandosSelected.find(x => x.id === id)) {
+          this.catequizandosSelected.push(person);
+        }
+      });
+      this.modalSelectedIds = [];
       this.modalOpen = false;
     },
+
     removeCatequizando(id) {
       this.catequizandosSelected = this.catequizandosSelected.filter(p => p.id !== id);
     },
 
-    // salvar
-    save() {
-      // aqui você faria a validação e o envio pra API
-      const payload = {
-        ...this.form,
-        catequistas: this.catequistasSelected.map(c => c.id),
-        catequizandos: this.catequizandosSelected.map(p => p.id)
-      };
-      console.log('Salvar payload', payload);
-      alert('Dados prontos para salvar (veja console).');
+    async carregarComunidades() {
+      const { data } = await api.get('/api/Comunidade');
+      this.comunidades = data;
+    },
+
+    toTimeString(value) {
+      if (typeof value === "string" && value.includes(":")) return value.substring(0,5);
+      if (typeof value === "number") return String(value).padStart(2,"0") + ":00";
+      return null;
+    },
+
+   async save() {
+  try {
+    const confirm = await Swal.fire({
+      title: "Confirmar cadastro?",
+      text: "Deseja realmente cadastrar esta turma?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sim, salvar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const toFullTimeString = (value: string | null) => {
+      if (!value) return null;
+      const [h, m] = value.split(':');
+      return `${h.padStart(2,'0')}:${m.padStart(2,'0')}:00`;
+    };
+
+    if (
+      !this.form.nome ||
+      !this.form.descricao ||
+      !this.form.diasemana ||
+      this.catequistasSelected.length === 0 ||
+      this.catequizandosSelected.length === 0
+    ) {
+      Swal.fire("Atenção", "Preencha todos os campos obrigatórios!", "warning");
+      return;
     }
+
+    const payload = {
+      nome: this.form.nome,
+      descricao: this.form.descricao,
+      dataturma: this.form.data,
+      idademin: this.form.idadeMin,
+      idademax: this.form.idadeMax,
+      diasemana: this.form.diasemana,
+      limitecatequizando: Number(this.form.quantidadecatequizando),
+      status: this.form.ativo,
+      horarioinicial: toFullTimeString(this.form.horarioini),
+      horariofinal: toFullTimeString(this.form.horariofim),
+      id_catequistas: this.catequistasSelected.map(c => c.id),
+      catequizandos_ids: this.catequizandosSelected.map(c => c.id),
+      id_comunidade_fk: this.form.id_comunidade_fk || null
+    };
+
+    console.log("Payload final:", payload);
+
+    await api.post('/api/Turma', payload);
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Turma cadastrada!',
+      text: 'A turma foi criada com sucesso.'
+    });
+
+    this.$router.push('/Turma');
+
+  } catch (error: any) {
+    console.error("ERRO AO SALVAR:", error);
+
+    const apiMessage =
+      error.response?.data?.message ||
+      error.response?.data?.erro ||
+      error.response?.data?.error ||
+      JSON.stringify(error.response?.data) ||
+      "Erro inesperado ao salvar a turma.";
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro ao salvar',
+      text: apiMessage
+    });
+  }
+}
+
+
+
   }
 };
 </script>
+
 
 <style scoped>
 .page-wrapper { display:flex; width:100%; min-height:100vh; background:#f7f8fb; }

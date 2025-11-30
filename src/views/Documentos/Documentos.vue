@@ -72,11 +72,10 @@
             <RouterLink 
                 v-for="(doc, index) in listaPaginada" 
                 :key="index"
-                :to="'/Documento/DetalheDoc'" 
+                :to="`/Documento/DetalheDoc/${doc.id}`"
                 class="documento-card"
             >
                 <div class="card-imagem">
-                <!-- Imagem do documento aqui -->
                 </div>
                 <div class="card-info">
                 <h3 class="card-titulo">{{ doc.nome }}</h3>
@@ -110,8 +109,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import SideBar from '@/components/SideBar.vue';
+import axios from "axios";
+import Swal from "sweetalert2";
+import { api } from '@/common/http';
+
 
 export default {
   name: "Documentos",
@@ -119,14 +122,14 @@ export default {
   data(){
     return{
       isSideBarRecolhida: true, 
-      documentos: [], // os dados dos documentos vão ser guardados aqui
+      documentos: [], 
       pesquisa: "",
       filtroTurma: "Todos",
       filtroOrdem: "Crescente",
       filtroTipo: "Todos",
       filtroStatus: "Todos",
 
-      itensPorPagina: 16, // 4 colunas x 4 linhas
+      itensPorPagina: 16, 
       paginaAtual: 1
     };
   },
@@ -201,16 +204,35 @@ export default {
       }
     }
   },
-  mounted(){
-    this.documentos = Array.from({ length: 30 }, (_, i) => ({
-      id: i + 1,
-      nome: `Documento ${i + 1}`,
-      tipo: ['Desenho', 'Avisos', 'Documentos'][i % 3],
-      turma: ['Crianças', 'Crisma'][i % 2],
-      status: ['Ativo', 'Inativo'][i % 2],
-      imagemUrl: `https://via.placeholder.com/200x150?text=Doc+${i+1}`
-    } ));
+ mounted: async function () {
+  try {
+    const response = await api.get('/api/Documento');
+
+    this.documentos = response.data.map(doc => ({
+      id: doc.id_documento ?? doc.id,
+      nome: doc.descricao,
+      tipo: doc.tipo,
+      caminho: doc.caminho_arquivo,
+      dataUpload: doc.data_upload,
+      usuarios: doc.id_usuarios,
+      turmas: doc.id_turmas,
+      turma: doc.id_turmas?.length ? doc.id_turmas[0] : "N/A",
+      imagemUrl: "/default-document.png"
+    }));
+
+  } catch (err) {
+    console.error("Erro ao carregar documentos:", err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Erro ao carregar documentos",
+      text: "Não foi possível obter os dados do servidor.",
+      confirmButtonColor: "#d33",
+      confirmButtonText: "OK"
+    });
   }
+}
+
 }
 </script>
 
