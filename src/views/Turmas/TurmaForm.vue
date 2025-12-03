@@ -417,29 +417,93 @@ export default {
 
 
 <style scoped>
-.page-wrapper { display:flex; width:100%; min-height:100vh; background:#f7f8fb; }
-.layout-container { display:flex; width:100%; }
+.page-wrapper { 
+  display:flex; 
+  width:100%; 
+  min-height:100vh; 
+  background:#f7f8fb; 
+}
 
-.form-page { flex:1; transition: margin-left .28s ease; padding:40px; }
-.content-recolhido { margin-left:80px; }
-.container-form { max-width:1100px; margin:0 auto; }
+.layout-container { 
+  display:flex; 
+  width:100%; 
+}
 
-.return-button-container { margin-bottom: 1rem; }
-.btn-return { border:1.5px solid #0d6efd; color:#0d6efd; background:transparent; border-radius:25px; padding:8px 18px; text-decoration:none; }
-.btn-return:hover { background:#0d6efd; color:#fff; }
+.form-page { 
+  flex:1; 
+  transition: margin-left .28s ease; 
+  padding:40px;
+ }
 
-.titulo { font-size:1.9rem; font-weight:700; margin-bottom: .6rem; }
+.content-recolhido { 
+  margin-left:80px; 
+}
 
-.form-card { border-radius:12px; border:1px solid #eef0f3; background:#fff; box-shadow:0 8px 30px rgba(15,23,42,0.06); }
-.card-body { padding: 32px 32px 40px 32px; }
+.container-form { 
+  max-width:1100px; 
+  margin:0 auto; 
+}
 
-.form-label { display:block; margin-bottom:.5rem; font-weight:600; color:#333; }
-.form-control, .form-select { background:#f3f6fb; border:1px solid #e6eef9; border-radius:10px; height:44px; padding:8px 12px; }
-.form-control:focus { outline:none; box-shadow:0 0 0 3px rgba(13,110,253,0.08); background:#fff; }
+.return-button-container { 
+  margin-bottom: 1rem; 
+}
 
-/* Catequista chips */
-.catequista-input { position: relative;
-  width: 100%; }
+.btn-return { 
+  border:1.5px solid #0d6efd; 
+  color:#0d6efd; 
+  background:transparent; 
+  border-radius:25px; 
+  padding:8px 18px; 
+  text-decoration:none; 
+}
+
+.btn-return:hover { 
+  background:#0d6efd; 
+  color:#fff; 
+}
+
+.titulo { 
+  font-size:1.9rem; 
+  font-weight:700; 
+  margin-bottom: .6rem;
+ }
+
+.form-card { 
+  border-radius:12px; 
+  border:1px solid #eef0f3; 
+  background:#fff; 
+  box-shadow:0 8px 30px rgba(15,23,42,0.06); 
+}
+
+.card-body { 
+  padding: 32px 32px 40px 32px; 
+}
+
+.form-label { 
+  display:block;
+   margin-bottom:.5rem; 
+   font-weight:600; 
+   color:#333; 
+  }
+
+.form-control, .form-select { 
+  background:#f3f6fb; 
+  border:1px solid #e6eef9; 
+  border-radius:10px; 
+  height:44px; 
+  padding:8px 12px; 
+}
+
+.form-control:focus { 
+  outline:none; 
+  box-shadow:0 0 0 3px rgba(13,110,253,0.08); 
+  background:#fff; 
+}
+
+.catequista-input { 
+  position: relative;
+  width: 100%; 
+}
 .chips {
   min-height: 44px;
   background: #f3f6fb;
@@ -452,7 +516,17 @@ export default {
   gap: 8px;
 }
 
-.chip { background:#0d6efd; color:#fff; padding:6px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:.5rem; font-weight:600; }
+.chip { 
+  background:#0d6efd; 
+  color:#fff; 
+  padding:6px 10px; 
+  border-radius:999px; 
+  display:inline-flex; 
+  align-items:center; 
+  gap:.5rem; 
+  font-weight:600; 
+}
+
 .chip-remove { background:transparent; border:none; color:#fff; font-size:16px; cursor:pointer; margin-left:6px; }
 .chip-input {
   border: none;
@@ -464,40 +538,203 @@ export default {
   font-size: 15px;
 }
 
-.catequista-dropdown { position:absolute; left:0; top:calc(100% + 8px); width:420px; max-height:260px; overflow:auto; background:#fff; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.08); border:1px solid #eef0f3; z-index:20; }
-.catequista-dropdown ul { list-style:none; margin:0; padding:8px; }
-.catequista-dropdown li { padding:10px 12px; display:flex; justify-content:space-between; cursor:pointer; border-radius:8px; }
-.catequista-dropdown li:hover { background:#f6f8ff; }
-.catequista-dropdown .empty { color:#9aa4b2; padding:12px; }
+.catequista-dropdown {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  width: 420px;
+  max-height: 260px;
+  overflow: auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+  border: 1px solid #eef0f3;
+  z-index: 20;
+}
 
-/* selected list pills */
-.selected-list { margin-top:.6rem; display:flex; gap:.5rem; flex-wrap:wrap; }
-.pill { background:#e6f0ff; color:#0b62c9; padding:6px 10px; border-radius:999px; font-weight:600; display:inline-flex; align-items:center; gap:.5rem; }
-.pill button { background:transparent; border:none; cursor:pointer; color:#0b62c9; font-weight:700; }
+.catequista-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+}
 
-/* Modal overlay */
-.modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,12,20,0.35); z-index:1000; padding:40px; }
-.modal-card { width:100%; max-width:980px; background:#fff; border-radius:24px; box-shadow:0 20px 60px rgba(2,6,23,0.12); overflow:hidden; display:flex; flex-direction:column; }
-.modal-search { padding:22px 28px; display:flex; gap:10px; align-items:center; border-bottom:1px solid #f1f4f8; }
-.modal-search input { flex:1; height:48px; border-radius:999px; border:1px solid #e9eef6; padding:10px 16px; background:#f7fbff; }
-.btn-icon { background:transparent; border:none; cursor:pointer; width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; }
+.catequista-dropdown li {
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  border-radius: 8px;
+}
 
-.modal-list { padding:12px 20px; max-height:520px; overflow:auto; }
-.modal-list ul { list-style:none; margin:0; padding:0; }
-.modal-row { display:flex; align-items:center; justify-content:space-between; background:#fff; padding:12px; margin-bottom:12px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.04); }
-.row-left { display:flex; gap:12px; align-items:center; }
-.avatar { width:46px; height:46px; background-size:cover; background-position:center; border-radius:10px; }
-.meta .name { font-weight:600; }
-.meta .sub { color:#7b8aa3; font-size:.9rem; margin-top:2px; }
-.row-right input[type='checkbox'] { width:18px; height:18px; }
+.catequista-dropdown li:hover {
+  background: #f6f8ff;
+}
 
-.modal-actions { padding:16px 22px; display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #f1f4f8; }
-.btn-outline { background:transparent; border:1.2px solid #cbd6e6; padding:8px 14px; border-radius:10px; }
-.btn-primary { background:#0d6efd; color:#fff; border:none; padding:8px 14px; border-radius:10px; }
+.catequista-dropdown .empty {
+  color: #9aa4b2;
+  padding: 12px;
+}
 
-/* Transitions */
-.fade-enter-active, .fade-leave-active { transition: opacity .18s ease; }
-.fade-enter-from, .fade-leave-to { opacity:0; }
+.selected-list {
+  margin-top: .6rem;
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  background: #e6f0ff;
+  color: #0b62c9;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.pill button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #0b62c9;
+  font-weight: 700;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 12, 20, 0.35);
+  z-index: 1000;
+  padding: 40px;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 980px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(2, 6, 23, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-search {
+  padding: 22px 28px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid #f1f4f8;
+}
+
+.modal-search input {
+  flex: 1;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid #e9eef6;
+  padding: 10px 16px;
+  background: #f7fbff;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-list {
+  padding: 12px 20px;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.modal-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
+}
+
+.row-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+}
+
+.meta .name {
+  font-weight: 600;
+}
+
+.meta .sub {
+  color: #7b8aa3;
+  font-size: .9rem;
+  margin-top: 2px;
+}
+
+.row-right input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+}
+
+.modal-actions {
+  padding: 16px 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #f1f4f8;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.2px solid #cbd6e6;
+  padding: 8px 14px;
+  border-radius: 10px;
+}
+
+.btn-primary {
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .18s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 
 @media (max-width: 900px) {
   .modal-card { margin: 12px; width: calc(100% - 24px); max-width: calc(100% - 24px); }

@@ -39,15 +39,13 @@ onMounted(() => {
   overflow: hidden;
 }
 
-/* Animação principal */
 .loading-logo {
   width: 150px;
   animation:
     pulse 1.4s ease-in-out infinite,
-    fadeOut 0.7s ease forwards 1.7s; /* começa após 1.7s */
+    fadeOut 0.7s ease forwards 1.7s; 
 }
 
-/* Efeito pulsante */
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -63,7 +61,6 @@ onMounted(() => {
   }
 }
 
-/* Desaparecimento suave */
 @keyframes fadeOut {
   to {
     opacity: 0;

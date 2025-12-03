@@ -188,7 +188,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import SideBar from "@/components/SideBar.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -455,7 +455,6 @@ onMounted(async () => {
   await carregarTurma();
 });
 </script>
-
 
 
 <style scoped>

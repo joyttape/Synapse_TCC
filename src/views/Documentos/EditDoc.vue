@@ -13,7 +13,7 @@
             </div>
 
             <header class="form-header">
-              <h1 class="titulo">Cadastro de Documento</h1>
+              <h1 class="titulo">Atualizar Documento</h1>
             </header>
 
             <div class="card form-card">
@@ -28,7 +28,7 @@
                     <label class="form-label">Tipo <span class="text-danger">*</span></label>
                     <select v-model="form.tipo" class="form-select">
                       <option disabled value="">Selecione</option>
-                      <option value="Certidao">Certidão</option>
+                      <option value="Certidão">Certidão</option>
                       <option value="Aviso">Aviso</option>
                       <option value="Desenho">Desenho</option>
                       <option value="Outro">Outro</option>
@@ -194,12 +194,12 @@
 	  </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import SideBar from "@/components/SideBar.vue";
 import { api } from "@/common/http";
 import Swal from "sweetalert2";
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from "vue-router";
 
 interface Usuario {
   id: number;
@@ -211,148 +211,131 @@ interface Turma {
   nome: string;
 }
 
-export default defineComponent({
-  name: "DocumentoForm",
-  components: { SideBar },
+const router = useRouter();
+const route = useRoute();
 
-  setup() {
-    const isSideBarRecolhida = ref(true);
+const isSideBarRecolhida = ref(true);
 
-    const router = useRouter();
-    const usuarios = ref<Usuario[]>([]);
-    const turmas = ref<Turma[]>([]);
+const usuarios = ref<Usuario[]>([]);
+const turmas = ref<Turma[]>([]);
 
-    const modalUsuarioSearch = ref('');
-    const modalUsuarioFiltered = ref<Usuario[]>([]);
-    const modalTurmaSearch = ref('');
-    const modalTurmaFiltered = ref<Turma[]>([]);
+const modalUsuarioSearch = ref("");
+const modalUsuarioFiltered = ref<Usuario[]>([]);
+const modalTurmaSearch = ref("");
+const modalTurmaFiltered = ref<Turma[]>([]);
 
-    const usuariosSelected = ref<Usuario[]>([]);
-    const turmasSelected = ref<Turma[]>([]);
-    const modalUsuarioSelectedIds = ref<number[]>([]);
-    const modalTurmaSelectedIds = ref<number[]>([]);
+const usuariosSelected = ref<Usuario[]>([]);
+const turmasSelected = ref<Turma[]>([]);
+const modalUsuarioSelectedIds = ref<number[]>([]);
+const modalTurmaSelectedIds = ref<number[]>([]);
 
-    const arquivoSelecionado = ref<File | null>(null);
+const arquivoSelecionado = ref<File | null>(null);
+const inputArquivo = ref<HTMLInputElement | null>(null);
 
-    const form = ref({
-      nome: "",
-      tipo: "",
-      data: "",
-      usuarioIds: [] as number[],
-      turmaIds: [] as number[],
-      descricao: "",
-    });
+const modalUsuariosAberto = ref(false);
+const modalTurmasAberto = ref(false);
 
-    const modalUsuariosAberto = ref(false);
-    const modalTurmasAberto = ref(false);
-
-    const inputArquivo = ref<HTMLInputElement | null>(null);
-
-    const openModalUsuario = () => {
-      modalUsuarioSelectedIds.value = usuariosSelected.value.map(u => u.id);
-      modalUsuariosAberto.value = true;
-      modalUsuarioFiltered.value = usuarios.value;
-      modalUsuarioSearch.value = '';
-    };
-
-    const closeModalUsuario = () => {
-      modalUsuariosAberto.value = false;
-    };
-
-    const filterModalUsuario = () => {
-      const term = modalUsuarioSearch.value.toLowerCase();
-      modalUsuarioFiltered.value = usuarios.value.filter(u =>
-        u.nome.toLowerCase().includes(term)
-      );
-    };
-
-    const toggleUsuarioSelection = (id: number) => {
-      if (modalUsuarioSelectedIds.value.includes(id)) {
-        modalUsuarioSelectedIds.value = modalUsuarioSelectedIds.value.filter((selectedId) => selectedId !== id);
-      } else {
-        modalUsuarioSelectedIds.value = [id];
-      }
-    };
+const form = ref({
+  id_documento: 0,
+  nome: "",
+  tipo: "",
+  data: "",
+  descricao: "",
+  usuarioIds: [] as number[],
+  turmaIds: [] as number[],
+  caminho_arquivo: "",
+});
 
 
-    const addSelectedUsuarios = () => {
-      usuariosSelected.value = usuarios.value.filter(u =>
-        modalUsuarioSelectedIds.value.includes(u.id)
-      );
-      form.value.usuarioIds = usuariosSelected.value.map(u => u.id);
-      closeModalUsuario();
-    };
+const openModalUsuario = () => {
+  modalUsuarioSelectedIds.value = usuariosSelected.value.map(u => u.id);
+  modalUsuariosAberto.value = true;
+  modalUsuarioFiltered.value = usuarios.value;
+  modalUsuarioSearch.value = "";
+};
 
-    const removeUsuario = (id: number) => {
-      usuariosSelected.value = usuariosSelected.value.filter(u => u.id !== id);
-      form.value.usuarioIds = usuariosSelected.value.map(u => u.id);
-    };
+const closeModalUsuario = () => (modalUsuariosAberto.value = false);
 
-    const openModalTurma = () => {
-      modalTurmaSelectedIds.value = turmasSelected.value.map(t => t.id);
-      modalTurmasAberto.value = true;
-      modalTurmaFiltered.value = turmas.value;
-      modalTurmaSearch.value = '';
-    };
+const filterModalUsuario = () => {
+  const term = modalUsuarioSearch.value.toLowerCase();
+  modalUsuarioFiltered.value = usuarios.value.filter(u =>
+    u.nome.toLowerCase().includes(term)
+  );
+};
 
-    const closeModalTurma = () => {
-      modalTurmasAberto.value = false;
-    };
+const toggleUsuarioSelection = (id: number) => {
+  modalUsuarioSelectedIds.value = [id];
+};
 
-    const filterModalTurma = () => {
-      const term = modalTurmaSearch.value.toLowerCase();
-      modalTurmaFiltered.value = turmas.value.filter(t =>
-        t.nome.toLowerCase().includes(term)
-      );
-    };
+const addSelectedUsuarios = () => {
+  usuariosSelected.value = usuarios.value.filter(u =>
+    modalUsuarioSelectedIds.value.includes(u.id)
+  );
+  form.value.usuarioIds = usuariosSelected.value.map(u => u.id);
+  closeModalUsuario();
+};
 
-    const toggleTurmaSelection = (id: number) => {
-      const index = modalTurmaSelectedIds.value.indexOf(id);
-      if (index > -1) {
-        modalTurmaSelectedIds.value.splice(index, 1);
-      } else {
-        modalTurmaSelectedIds.value.push(id);
-      }
-    };
+const removeUsuario = (id: number) => {
+  usuariosSelected.value = usuariosSelected.value.filter(u => u.id !== id);
+  form.value.usuarioIds = usuariosSelected.value.map(u => u.id);
+};
 
-    const addSelectedTurmas = () => {
-      turmasSelected.value = turmas.value.filter(t =>
-        modalTurmaSelectedIds.value.includes(t.id)
-      );
-      form.value.turmaIds = turmasSelected.value.map(t => t.id);
-      closeModalTurma();
-    };
 
-    const removeTurma = (id: number) => {
-      turmasSelected.value = turmasSelected.value.filter(t => t.id !== id);
-      form.value.turmaIds = turmasSelected.value.map(t => t.id);
-    };
+const openModalTurma = () => {
+  modalTurmaSelectedIds.value = turmasSelected.value.map(t => t.id);
+  modalTurmasAberto.value = true;
+  modalTurmaFiltered.value = turmas.value;
+  modalTurmaSearch.value = "";
+};
 
-    const mascararData = (event: Event) => {
-      let valor = (event.target as HTMLInputElement).value;
-      valor = valor.replace(/\D/g, "");
-      if (valor.length <= 2) {
-        valor = valor.replace(/(\d{2})/, "$1");
-      } else if (valor.length <= 4) {
-        valor = valor.replace(/(\d{2})(\d{2})/, "$1/$2");
-      } else {
-        valor = valor.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3");
-      }
-      (event.target as HTMLInputElement).value = valor;
-    };
+const closeModalTurma = () => (modalTurmasAberto.value = false);
 
-    const abrirExplorer = () => {
-      inputArquivo.value?.click();
-    };
+const filterModalTurma = () => {
+  const term = modalTurmaSearch.value.toLowerCase();
+  modalTurmaFiltered.value = turmas.value.filter(t =>
+    t.nome.toLowerCase().includes(term)
+  );
+};
 
-    const selecionarArquivo = (event: Event) => {
-      const arquivo = (event.target as HTMLInputElement).files?.[0];
-      if (arquivo) {
-        arquivoSelecionado.value = arquivo;
-      }
-    };
+const toggleTurmaSelection = (id: number) => {
+  const index = modalTurmaSelectedIds.value.indexOf(id);
+  if (index > -1) modalTurmaSelectedIds.value.splice(index, 1);
+  else modalTurmaSelectedIds.value.push(id);
+};
 
-    onMounted(async () => {
+const addSelectedTurmas = () => {
+  turmasSelected.value = turmas.value.filter(t =>
+    modalTurmaSelectedIds.value.includes(t.id)
+  );
+  form.value.turmaIds = turmasSelected.value.map(t => t.id);
+  closeModalTurma();
+};
+
+const removeTurma = (id: number) => {
+  turmasSelected.value = turmasSelected.value.filter(t => t.id !== id);
+  form.value.turmaIds = turmasSelected.value.map(t => t.id);
+};
+
+
+const abrirExplorer = () => inputArquivo.value?.click();
+
+const selecionarArquivo = (event: Event) => {
+  arquivoSelecionado.value = (event.target as HTMLInputElement).files?.[0] || null;
+};
+
+const mascararData = (event: Event) => {
+  let valor = (event.target as HTMLInputElement).value;
+  valor = valor.replace(/\D/g, "");
+  if (valor.length <= 2) valor = valor.replace(/(\d{2})/, "$1");
+  else if (valor.length <= 4) valor = valor.replace(/(\d{2})(\d{2})/, "$1/$2");
+  else valor = valor.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3");
+
+  (event.target as HTMLInputElement).value = valor;
+};
+
+onMounted(async () => {
+  const id = Number(route.params.id);
+
   try {
     const { data: catequistasData } = await api.get("/api/Catequista");
     const { data: catequizandosData } = await api.get("/api/Catequizando");
@@ -369,40 +352,42 @@ export default defineComponent({
       })),
     ];
 
-    console.log('Usuários:', usuarios.value); 
-
     turmas.value = turmasData.map((t: any) => ({
       id: t.id_turma || t.id,
       nome: t.nome,
     }));
 
+    const { data } = await api.get(`/api/Documento/${id}`);
+
+    form.value.id_documento = data.id_documento;
+    form.value.nome = data.nome;
+    form.value.tipo = data.tipo;
+    form.value.data = data.data_upload;
+    form.value.descricao = data.descricao;
+    form.value.caminho_arquivo = data.caminho_arquivo;
+
+    form.value.usuarioIds = data.usuarios.map((u: any) => u.id_usuario);
+    usuariosSelected.value = usuarios.value.filter(u =>
+      form.value.usuarioIds.includes(u.id)
+    );
+
+    form.value.turmaIds = data.turmas.map((t: any) => t.id_turma);
+    turmasSelected.value = turmas.value.filter(t =>
+      form.value.turmaIds.includes(t.id)
+    );
+
   } catch (err) {
-    console.error("Erro ao carregar listas:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Erro ao carregar dados",
-      text: "Não foi possível obter usuários ou turmas.",
-      confirmButtonColor: "#d33",
-    });
+    console.error(err);
+    Swal.fire("Erro", "Não foi possível carregar o documento.", "error");
   }
 });
 
 
-   const salvarDocumento = async () => {
+const salvarDocumento = async () => {
   if (!form.value.nome || !form.value.tipo || !form.value.data || !form.value.descricao) {
     Swal.fire({
       icon: "warning",
       title: "Preencha todos os campos obrigatórios.",
-      confirmButtonColor: "#f0ad4e",
-    });
-    return;
-  }
-
-  if (!arquivoSelecionado.value) {
-    Swal.fire({
-      icon: "warning",
-      title: "Selecione um arquivo para enviar.",
-      confirmButtonColor: "#f0ad4e",
     });
     return;
   }
@@ -410,102 +395,45 @@ export default defineComponent({
   const formatarData = (data: string): string => {
     const regex = /^(\d{2})(\d{2})(\d{4})$/;
     const match = data.match(regex);
-    if (match) {
-      return `${match[3]}-${match[2]}-${match[1]}`;
-    }
-    return data;
+    return match ? `${match[3]}-${match[2]}-${match[1]}` : data;
   };
 
   const dataFormatted = formatarData(form.value.data);
 
   try {
     const documentoData = {
+      id_documento: route.params.id,
       tipo: form.value.tipo,
       nome: form.value.nome,
       descricao: form.value.descricao,
-      caminho_arquivo: arquivoSelecionado.value.name,
+      caminho_arquivo: form.value.caminho_arquivo,
       data_upload: dataFormatted,
-      id_usuarios: form.value.usuarioIds.length ? form.value.usuarioIds : [], 
-      id_turmas: form.value.turmaIds.length ? form.value.turmaIds : [], 
+      id_usuarios: form.value.usuarioIds,
+      id_turmas: form.value.turmaIds,
     };
 
-    console.log("Dados a serem enviados para a API:", JSON.stringify(documentoData));
+    console.log("PUT enviado:", documentoData);
 
-    const response = await api.post("/api/Documento", documentoData, {
-      headers: { "Content-Type": "application/json" },
-    });
-
-    console.log("Resposta da API:", response.data);
+    await api.put(`/api/Documento/${route.params.id}`, documentoData);
 
     Swal.fire({
       icon: "success",
-      title: "Documento salvo!",
-      confirmButtonColor: "#28a745",
+      title: "Documento atualizado!",
     });
 
-    router.push('/Documento');
-
+    router.push("/Documento");
 
   } catch (err) {
-    console.error("Erro ao salvar documento:", err);
-
-    if (err.response) {
-      console.log("Detalhes do erro da API:", err.response.data);
-      Swal.fire({
-        icon: "error",
-        title: "Erro ao salvar documento",
-        text: err.response.data.message || "Verifique os dados enviados.",
-        confirmButtonColor: "#d33",
-      });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Erro ao salvar documento",
-        text: "Erro desconhecido. Tente novamente mais tarde.",
-        confirmButtonColor: "#d33",
-      });
-    }
+    console.error("Erro ao atualizar documento:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Erro ao atualizar",
+      text: err.response?.data?.message || "Verifique os dados enviados.",
+    });
   }
 };
-
-
-    return {
-      isSideBarRecolhida,
-      usuarios,
-      turmas,
-      form,
-      modalUsuariosAberto,
-      modalTurmasAberto,
-      abrirExplorer,
-      selecionarArquivo,
-      salvarDocumento,
-      inputArquivo,
-      arquivoSelecionado,
-      mascararData,
-      modalUsuarioSearch,
-      modalUsuarioFiltered,
-      modalTurmaSearch,
-      modalTurmaFiltered,
-      usuariosSelected,
-      turmasSelected,
-      modalUsuarioSelectedIds,
-      modalTurmaSelectedIds,
-      openModalUsuario,
-      closeModalUsuario,
-      filterModalUsuario,
-      toggleUsuarioSelection,
-      addSelectedUsuarios,
-      removeUsuario,
-      openModalTurma,
-      closeModalTurma,
-      filterModalTurma,
-      toggleTurmaSelection,
-      addSelectedTurmas,
-      removeTurma,
-    };
-  },
-});
 </script>
+
 
 
 <style scoped>
@@ -690,7 +618,6 @@ height: auto;
 	.btn-outline { background:transparent; border:1.2px solid #cbd6e6; padding:8px 14px; border-radius:10px; }
 	.btn-primary { background:#0d6efd; color:#fff; border:none; padding:8px 14px; border-radius:10px; }
 
-	/* Transitions */
 	.fade-enter-active, .fade-leave-active { transition: opacity .18s ease; }
 	.fade-enter-from, .fade-leave-to { opacity:0; }
 

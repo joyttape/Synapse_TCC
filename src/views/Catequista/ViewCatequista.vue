@@ -264,9 +264,6 @@ export default {
 };
 </script>
 
-
-
-
 <style scoped>
 
 .page-wrapper {

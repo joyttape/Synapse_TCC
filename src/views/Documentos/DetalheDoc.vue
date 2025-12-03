@@ -15,11 +15,11 @@
             <header class="top-header">
               <h1>Detalhes Documento</h1>
               <div class="btn-group">
-                <RouterLink :to="`/Turma/EditDoc/${form.id}`">
+                <RouterLink :to="`/Documento/EditDocumento/${form.id}`">
                   <button class="btn-edit">Editar Documento</button>
                 </RouterLink>
 
-                <button class="btn-delete" @click="deletarTurma(form.id)">Deletar</button>
+                <button class="btn-delete" @click="deletardoc(form.id)">Deletar</button>
               </div>
             </header>
 
@@ -34,7 +34,7 @@
                   <div class="col-md-4 mb-4">
                     <label class="form-label">Tipo</label>
                     <select v-model="form.tipo" class="form-select" disabled>
-                      <option value="Certidao">Certidão</option>
+                      <option value="Certidão">Certidão</option>
                       <option value="Aviso">Aviso</option>
                       <option value="Desenho">Desenho</option>
                       <option value="Outro">Outro</option>
@@ -47,7 +47,7 @@
                   </div>
 
                   <div class="col-md-6 mb-4">
-                  <label class="form-label">Vincular a um usuário</label>
+                  <label class="form-label">Usuários vinculados</label>
                   <input 
                     :value="usuariosSelected.map(u => u.nome).join(', ')" 
                     class="form-control" 
@@ -56,7 +56,7 @@
                 </div>
 
                   <div class="col-md-6 mb-4">
-                  <label class="form-label">Vincular a uma turma</label>
+                  <label class="form-label">Turmas</label>
                   <input 
                     :value="turmasSelected.map(t => t.nome).join(', ')" 
                     class="form-control" 
@@ -90,13 +90,12 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
 import SideBar from "@/components/SideBar.vue";
 import { api } from "@/common/http";
 import Swal from "sweetalert2";
-import { useRouter, useRoute } from 'vue-router';  // Importando useRoute
+import { useRouter, useRoute } from 'vue-router'; 
 
 interface Usuario {
   id: number;
@@ -109,69 +108,64 @@ interface Turma {
 }
 
 export default defineComponent({
-  name: "DocumentoForm",
+  name: "DetalhesDoc",
   components: { SideBar },
 
-  setup() {
-    const isSideBarRecolhida = ref(true);
-    const route = useRoute(); // Acessando a rota
-    const usuarios = ref<Usuario[]>([]);
-    const turmas = ref<Turma[]>([]);
-    const form = ref({
-      nome: "",
-      tipo: "",
-      data: "",
-      descricao: "",
-    });
+  data() {
+    return {
+      isSideBarRecolhida: true,
+      usuarios: [] as Usuario[],
+      turmas: [] as Turma[],
+      form: {
+        id: "",
+        nome: "",
+        tipo: "",
+        data: "",
+        descricao: "",
+      },
+      usuariosSelected: [] as Usuario[],
+      turmasSelected: [] as Turma[],
+      arquivoSelecionado: null as File | null,
+      arquivoSelecionadoUrl: "",
+      documentoId: this.$route.params.id
+    };
+  },
 
-    const usuariosSelected = ref<Usuario[]>([]);
-    const turmasSelected = ref<Turma[]>([]);
-
-    const arquivoSelecionado = ref<File | null>(null);
-    const arquivoSelecionadoUrl = ref<string>("");
-
-    const documentoId = route.params.id;  
-
-    onMounted(async () => {
+  methods: {
+    async carregardoc() {
       try {
-        if (!documentoId) {
+        if (!this.documentoId) {
           throw new Error("ID do documento não encontrado.");
         }
 
-        // Requisição para carregar os dados do documento
-        const { data: documentoData } = await api.get(`/api/Documento/${documentoId}`);
+        const { data: documentoData } = await api.get(`/api/Documento/${this.documentoId}`);
         
-        // Carregar os detalhes do documento
-        form.value = {
+        this.form = {
+          id: documentoData.id_documento,
           nome: documentoData.nome,
           tipo: documentoData.tipo,
           data: documentoData.data_upload,
           descricao: documentoData.descricao,
         };
 
-        // Requisição para usuários relacionados ao documento
         const usuariosResponse = await api.get('/api/catequizando');
-        usuarios.value = usuariosResponse.data;
+        this.usuarios = usuariosResponse.data;
 
-        // Requisição para turmas relacionadas ao documento
         const turmasResponse = await api.get('/api/turma');
-        turmas.value = turmasResponse.data;
+        this.turmas = turmasResponse.data;
 
-        // Preencher os usuários selecionados no documento
-        usuariosSelected.value = documentoData.usuarios.map((usuario: any) => ({
+        this.usuariosSelected = documentoData.usuarios.map((usuario: any) => ({
           id: usuario.id_usuario,
           nome: usuario.nome,
         }));
 
-        // Preencher as turmas selecionadas no documento
-        turmasSelected.value = documentoData.turmas.map((turma: any) => ({
+        this.turmasSelected = documentoData.turmas.map((turma: any) => ({
           id: turma.id_turma,
           nome: turma.nome,
         }));
 
-        // Arquivo selecionado para download
-        arquivoSelecionado.value = documentoData.arquivo;
-        arquivoSelecionadoUrl.value = `/path/to/file/${documentoData.caminho_arquivo}`;
+        this.arquivoSelecionado = documentoData.arquivo;
+        this.arquivoSelecionadoUrl = `/path/to/file/${documentoData.caminho_arquivo}`;
       } catch (err) {
         console.error("Erro ao carregar dados do documento", err);
         Swal.fire({
@@ -181,21 +175,80 @@ export default defineComponent({
           confirmButtonColor: "#d33",
         });
       }
+    },
+
+    async deletardoc(id: number) {
+  try {
+    const confirm = await Swal.fire({
+      title: "Confirmar exclusão",
+      text: "Deseja realmente excluir este documento?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sim, excluir",
+      cancelButtonText: "Cancelar",
     });
 
-    return {
-      isSideBarRecolhida,
-      usuarios,
-      turmas,
-      form,
-      usuariosSelected,
-      turmasSelected,
-      arquivoSelecionado,
-      arquivoSelecionadoUrl,
-    };
+    if (!confirm.isConfirmed) return;
+
+    console.log(`Tentando excluir o documento com id: ${id}`);
+
+    const response = await api.delete(`/api/Documento/${id}`);
+    
+    console.log("Resposta da API:", response); 
+
+    if (response.status === 200 || response.status === 204) {
+      await Swal.fire({
+        icon: "success",
+        title: "Excluído!",
+        text: "O documento foi removido com sucesso.",
+      });
+
+      this.$router.push("/Documento");
+    } else {
+      console.error("Resposta inesperada da API", response); 
+      Swal.fire({
+        icon: "error",
+        title: "Erro",
+        text: "Falha na exclusão do documento, código de status inesperado.",
+      });
+    }
+  } catch (error) {
+    console.error("Erro ao deletar documento:", error);  // Log detalhado do erro
+
+    // Se o erro for uma resposta da API, podemos detalhar mais:
+    if (error.response) {
+      console.error("Erro de resposta da API:", error.response);
+      Swal.fire({
+        icon: "error",
+        title: "Erro na resposta da API",
+        text: `Erro: ${error.response.status} - ${error.response.data}`,
+      });
+    } else if (error.request) {
+      console.error("Erro na requisição:", error.request);
+      Swal.fire({
+        icon: "error",
+        title: "Erro na requisição",
+        text: "A requisição não foi respondida. Verifique sua conexão ou servidor.",
+      });
+    } else {
+      console.error("Erro desconhecido:", error.message);
+      Swal.fire({
+        icon: "error",
+        title: "Erro desconhecido",
+        text: error.message,
+      });
+    }
+  }
+}
+
+  },
+
+  mounted() {
+    this.carregardoc();
   },
 });
 </script>
+
 
 
 <style scoped>

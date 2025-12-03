@@ -11,6 +11,7 @@ import EditCatequizando from '@/views/Catequizando/EditCatequizando.vue'
 import Documentos from '@/views/Documentos/Documentos.vue'
 import DocumentosForm from '@/views/Documentos/DocumentosForm.vue'
 import DetalheDoc from '@/views/Documentos/DetalheDoc.vue'
+import EditDocumento from '@/views/Documentos/EditDoc.vue'
 import Turma from '@/views/Turmas/Turma.vue'
 import TurmaForm from '@/views/Turmas/TurmaForm.vue'
 import DetalhesTurma from '@/views/Turmas/DetalhesTurma.vue'
@@ -110,7 +111,12 @@ const router = createRouter({
       path: '/Turma/DetalhesTurma/Encontro/EditEncontro',
       name: 'DetalhesEncontro',
       component: EditarEncontro
-    }
+    },
+    {
+      path: '/Documento/EditDocumento/:id',
+      name: 'EditDocumento',
+      component: EditDocumento
+    },
   ],
 })
 

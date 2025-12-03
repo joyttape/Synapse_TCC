@@ -196,14 +196,13 @@ defineEmits(['update:recolhida']);
 }
 
 .link-navegacao.ativo {
-  background: #3b82f6;
-  color: #ffffff;
+  background: transparent !important;
+  color: #3b82f6 !important;
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
 }
 
 .link-navegacao.ativo .icone-barra-lateral {
-  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(7500%) hue-rotate(109deg) brightness(101%) contrast(101%);
+  filter: brightness(0) saturate(100%) invert(27%) sepia(96%) saturate(1986%) hue-rotate(214deg);
 }
 
 .texto-navegacao {

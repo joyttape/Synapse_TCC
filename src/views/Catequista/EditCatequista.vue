@@ -277,7 +277,6 @@ async function salvar() {
   }
 };
 
-
     const response = await api.put(`/api/Catequista/${id}`, payload);
 
     Swal.fire({
@@ -298,7 +297,6 @@ async function salvar() {
     console.error("Payload enviado:", err.config?.data);
   }
 }
-
 
 
 onMounted(() => {

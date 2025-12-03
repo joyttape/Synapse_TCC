@@ -139,10 +139,10 @@
           </div>
 
         </main>
-      </div> <!-- turma_pagina -->
+      </div>
 
-    </div> <!-- layout-container -->
-  </div> <!-- page-wrapper -->
+    </div> 
+  </div> 
 </template>
 
 <script lang="ts">
@@ -281,8 +281,6 @@ export default {
   }
 };
 </script>
-
-
 
 <style>
 .page-wrapper {
