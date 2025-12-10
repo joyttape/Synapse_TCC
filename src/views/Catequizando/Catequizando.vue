@@ -1,5 +1,4 @@
 <template>
-  <Loading></Loading>
   <div class="page-wrapper">
     <div class="layout-container">
       
@@ -137,7 +136,6 @@
 
 <script lang="ts">
 import SideBar from '@/components/SideBar.vue';
-import Loading from '@/components/Loading.vue';
 import axios from 'axios';
 import { api } from '@/common/http';
 import Swal from 'sweetalert2'
@@ -172,7 +170,7 @@ export default {
 
 
   components:{
-    SideBar, Loading
+    SideBar,
   },
   computed: {
     listafiltrada() {
@@ -248,7 +246,7 @@ export default {
         nomecompleto: item.usuario?.nome || "",
         datanascimento: item.usuario?.data_nascimento || "",
         sexo: item.usuario?.sexo || "",
-        turma: idTurma ? this.turmasMapa[idTurma] : "Sem turma",   // ← AQUI
+        turma: idTurma ? this.turmasMapa[idTurma] : "Sem turma",
         telefone: item.usuario?.telefone || "",
         status: item.usuario?.ativo
       };

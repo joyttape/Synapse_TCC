@@ -188,7 +188,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import SideBar from "@/components/SideBar.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -197,10 +197,10 @@ import Swal from "sweetalert2";
 
 const route = useRoute();
 const router = useRouter();
-const id = route.params.id as string;
 
-const isSideBarRecolhida = true;
+const isSideBarRecolhida = ref(true);
 
+const id = route.params.id;
 
 const form = ref({
   id_turma: "",
@@ -217,10 +217,8 @@ const form = ref({
   id_comunidade_fk: ""
 });
 
-
 const listaCatequistas = ref<any[]>([]);
 const listaCatequizandos = ref<any[]>([]);
-
 
 const catequistasSelected = ref<any[]>([]);
 const catequistaSearch = ref("");
@@ -310,7 +308,6 @@ function removeCatequizando(id: number) {
   catequizandosSelected.value = catequizandosSelected.value.filter((p) => p.id !== id);
 }
 
-
 async function carregarCatequistas() {
   const { data } = await api.get("/api/Catequista");
 
@@ -384,7 +381,7 @@ async function save() {
     const toFullTimeString = (value: string) => {
       if (!value) return null;
       const [h, m] = value.split(':');
-      return `${h.padStart(2,'0')}:${m.padStart(2,'0')}:00`;
+      return `${h.padStart(2, '0')}:${m.padStart(2, '0')}:00`;
     };
 
     const payload = {
@@ -399,8 +396,8 @@ async function save() {
       diasemana: form.value.diasemana,
       horarioinicial: toFullTimeString(form.value.horarioini),
       horariofinal: toFullTimeString(form.value.horariofim),
-      id_catequistas: catequistasSelected.value.map(c => c.id),
-      catequizandos_ids: catequizandosSelected.value.map(c => c.id),
+      id_catequistas: catequistasSelected.value.map((c) => c.id),
+      catequizandos_ids: catequizandosSelected.value.map((c) => c.id),
       id_comunidade_fk: form.value.id_comunidade_fk || null
     };
 
@@ -415,7 +412,7 @@ async function save() {
     });
 
     router.push(`/Turma/DetalhesTurma/${form.value.id_turma}`);
-    
+
   } catch (error: any) {
     console.error("ERRO AO ATUALIZAR:", error);
 
@@ -427,8 +424,8 @@ async function save() {
       "Erro inesperado ao atualizar a turma.";
 
     Swal.fire({
-      icon: 'error',
-      title: 'Erro ao atualizar',
+      icon: "error",
+      title: "Erro ao atualizar",
       text: apiMessage
     });
   }
@@ -455,6 +452,7 @@ onMounted(async () => {
   await carregarTurma();
 });
 </script>
+
 
 
 <style scoped>

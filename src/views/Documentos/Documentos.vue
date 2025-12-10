@@ -60,9 +60,10 @@
               <label>Tipo</label>
               <select v-model="filtroTipo">
                 <option value="Todos">Todos</option>
-                <option value="Ativo">Desenho</option>
-                <option value="Inativo">Avisos</option>
-                <option value="Inativo">Documentos</option>
+                <option value="Certidão">Certidão</option>
+                <option value="Aviso">Aviso</option>
+                <option value="Desenho">Desenho</option>
+                <option value="Outro">Outro</option>
               </select>
             </div>
           </div>
@@ -163,9 +164,9 @@ export default {
         const nomeB = b.nome.toLowerCase();
         
         if (this.filtroOrdem === 'Crescente') {
-          return nomeA.localeCompare(nomeB); // A-Z
-        } else { // Decrescente
-          return nomeB.localeCompare(nomeA); // Z-A
+          return nomeA.localeCompare(nomeB); 
+        } else { 
+          return nomeB.localeCompare(nomeA);
         }
       });
 
@@ -210,7 +211,7 @@ export default {
 
     this.documentos = response.data.map(doc => ({
       id: doc.id_documento ?? doc.id,
-      nome: doc.descricao,
+      nome: doc.nome,
       tipo: doc.tipo,
       caminho: doc.caminho_arquivo,
       dataUpload: doc.data_upload,

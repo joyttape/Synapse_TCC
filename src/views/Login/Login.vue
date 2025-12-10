@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import type LoadingVue from '@/components/Loading.vue';
+
+</script>
+
 <template>
   <div class="container-fluid vh-100">
     <div class="row h-100">
@@ -43,7 +48,7 @@
 
             <router-link to="/catequizando" class="btn btn-primary w-100 rounded-3">
               Acessar
-            </router-link>
+            </router-link> 
           </form>
         </div>
       </div>
