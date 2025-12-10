@@ -381,9 +381,16 @@ async function salvar() {
 
     const response = await api.put(`/api/Catequizando/${id}`, payload);
 
-    console.log("🟢 RESPOSTA DO PUT:", response.data);
+    
 
-    router.push("/Catequizando");
+    Swal.fire({
+    icon: "success",
+    title: "Atualizado!",
+    text: "Os dados de catequizando foram salvos com sucesso.",
+    confirmButtonText: "OK"
+  }).then(() => {
+  router.push("/Catequizando");
+});
 
   } catch (err) {
     console.error("ERRO NO PUT:", err);

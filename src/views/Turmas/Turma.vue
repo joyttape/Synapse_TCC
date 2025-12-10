@@ -36,6 +36,7 @@
               <select v-model="filtroTurma">
                 <option value="Todos">Todos</option>
                 <option value="Crianças I">Crianças I</option>
+                <option value="Eucaristia I">Eucaristia I</option>
                 <option value="Crianças II">Crianças II</option>
                 <option value="Adolescentes">Adolescentes</option>
               </select>

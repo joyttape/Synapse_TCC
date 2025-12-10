@@ -218,7 +218,7 @@ export default {
       usuarios: doc.id_usuarios,
       turmas: doc.id_turmas,
       turma: doc.id_turmas?.length ? doc.id_turmas[0] : "N/A",
-      imagemUrl: "/default-document.png"
+      imagemUrl: "https://cdn-1.webcatalog.io/catalog/google-docs/google-docs-social-preview.png?v=1764055607070"
     }));
 
   } catch (err) {
@@ -407,7 +407,7 @@ export default {
 }
 
 .filter-item select {
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230d6efd'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-image: url("https://cdn-1.webcatalog.io/catalog/google-docs/google-docs-social-preview.png?v=1764055607070");
   background-repeat: no-repeat;
   background-position: right 4px center;
   background-size: 16px;
@@ -441,7 +441,7 @@ export default {
   width: 100%;
   padding-top: 75%;
   background-color: #e9f2ff; 
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%23b3d4ff'%3E%3Cpath d='M25 31.2L50 6.2l25 25V6.2H25zM25 68.8L50 93.8l25-25V93.8H25zM6.2 25L31.2 50 6.2 75H6.2zM93.8 25L68.8 50l25 25h-0.1z'/%3E%3C/g%3E%3C/svg%3E" );
+  background-image: url("https://cdn.prod.website-files.com/657639ebfb91510f45654149/67b4c2989b84b8a5bd953112_docs_512dp.webp");
   background-size: cover;
   border-bottom: 1px solid #eee;
 }
