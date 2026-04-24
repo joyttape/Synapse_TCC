@@ -10,7 +10,7 @@
           <div class="container my-5">
 
             <div class="return-button-container">
-              <button class="btn-return" @click="voltar">
+              <button class="btn-return" @click="confirmarVoltar">
                 ← Voltar
               </button>
             </div>
@@ -30,13 +30,13 @@
 
                     <div class="col-md-6 mb-3">
                       <label class="form-label">Telefone <span class="text-danger">*</span></label>
-                      <input v-model="form.telefone" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                      <input v-model="form.telefone" @input="onInputTelefone" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
                     </div>
 
                     <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
                       <div class="flex-fill">
                         <label class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
-                        <input v-model="form.nascimento" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
+                        <input v-model="form.nascimento" @input="onInputData($event, 'nascimento')" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
                       </div>
 
                       <div class="flex-fill">
@@ -52,20 +52,15 @@
                     <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
                       <div class="flex-fill">
                         <label class="form-label">Data de Admissão <span class="text-danger">*</span></label>
-                        <input v-model="form.admissao" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
-                      </div>
-
-                      <div class="flex-fill">
-                        <label class="form-label">Formação <span class="text-danger">*</span></label>
-                        <input v-model="form.formacao" type="text" class="form-control input-small" />
+                        <input v-model="form.admissao" @input="onInputData($event, 'admissao')" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
                       </div>
                     </div>
 
                     <div class="col-md-6 mb-3">
                       <label class="form-label">Comunidade <span class="text-danger">*</span></label>
                       <select v-model="form.id_comunidade_fk" class="form-select input-small">
-                        <option value="">Selecione</option>
-                        <option v-for="c in comunidades" :key="c.id_comunidade" :value="c.id_comunidade">
+                        <option value="null">Selecione</option>
+                        <option v-for="c in comunidades" :key="c.id_comunidade" :value="Number(c.id_comunidade)">
                           {{ c.nome }}
                         </option>
                       </select>
@@ -78,7 +73,7 @@
 
                     <div class="col-md-6 mb-3">
                       <label class="form-label">Sexo <span class="text-danger">*</span></label>
-                      <select v-model="form.sexo" class="form-select input-small" disabled>
+                      <select v-model="form.sexo" class="form-select input-small">
                         <option value="">Selecione</option>
                         <option value="Masculino">Masculino</option>
                         <option value="Feminino">Feminino</option>
@@ -134,13 +129,13 @@
 
                 <div class="col-md-3 mb-3">
                   <label class="form-label">CEP <span class="text-danger">*</span></label>
-                  <input v-model="form.cep" type="text" class="form-control input-small" placeholder="00000-000" />
+                  <input v-model="form.cep" @input="onInputCEP" type="text" class="form-control input-small" placeholder="00000-000" />
                 </div>
               </div>
             </div>
 
             <div class="d-flex justify-content-end">
-              <button type="button" @click="confirmarSalvar" class="btn salvar-btn">Salvar dados </button>
+              <button type="button" @click="salvar" class="btn salvar-btn">Salvar dados </button>
             </div>
 
           </div>
@@ -151,158 +146,121 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { api } from '@/common/http';
-import Swal from "sweetalert2";
+<script lang="ts">
+import SideBar from '@/components/SideBar.vue';
+import { CatequistaService } from '@/services/CatequistaService';
+import { ComunidadeService } from '@/services/ComunidadeService';
+import { masks } from '@/utils/masks';
+import Swal from 'sweetalert2';
 
-import SideBar from "@/components/SideBar.vue";
+export default {
+  name: 'EditCatequista',
+  components: { SideBar },
+  data() {
+    return {
+      isSideBarRecolhida: true,
+      comunidades: [] as any[],
+      id: 0,
+      form: {
+        admissao: '',
+        nome: '',
+        telefone: '',
+        nascimento: '',
+        ativo: null as boolean | null,
+        email: '',
+        sexo: '',
+        id_comunidade_fk: '',
+        logradouro: '',
+        complemento: '',
+        bairro: '',
+        estado: '',
+        cidade: '',
+        numero: '',
+        cep: ''
+      }
+    };
+  },
 
-const route = useRoute();
-const router = useRouter();
-const id = route.params.id;
-const isSideBarRecolhida = ref(true);
-const comunidades = ref([]);
+  methods: {
+    async carregarDados() {
+      try {
+        this.id = Number(this.$route.params.id);
+        const dados = await CatequistaService.buscarPorId(this.id);
+        
+        console.log("DADOS DA API:", dados);
+        console.log("ID DA COMUNIDADE QUE VEIO:", dados.usuario.id_comunidade_fk);
+        console.log("LISTA DE COMUNIDADES CARREGADA:", this.comunidades);
 
-const form = ref({
-  id_usuario: null,
-  nome: "",
-  telefone: "",
-  nascimento: "",
-  email: "",
-  sexo: "",
-  ativo: false,
-  admissao: "",
-  formacao: "",
-  id_comunidade_fk: "",
-  logradouro: "",
-  numero: "",
-  complemento: "",
-  bairro: "",
-  cidade: "",
-  estado: "",
-  cep: "",
-  uf: "",
-});
+        this.form = {
+          admissao: masks.data(dados.data_admissao),
+          nome: dados.usuario.nome,
+          telefone: masks.telefone(dados.usuario.telefone),
+          nascimento: masks.data(dados.usuario.data_nascimento),
+          ativo: dados.usuario.ativo,
+          email: dados.usuario.email,
+          sexo: dados.usuario.sexo,
+          id_comunidade_fk: dados.usuario.comunidade ? Number(dados.usuario.comunidade.id_comunidade) : null,
+          logradouro: dados.usuario.endereco.logradouro,
+          complemento: dados.usuario.endereco.complemento,
+          bairro: dados.usuario.endereco.bairro,
+          estado: dados.usuario.endereco.estado,
+          cidade: dados.usuario.endereco.cidade,
+          numero: dados.usuario.endereco.numero,
+          cep: masks.cep(dados.usuario.endereco.cep)
+        };
+      } catch (error) {
+        Swal.fire("Erro", "Não foi possível carregar os dados do catequista.", "error");
+      }
+    },
 
-async function carregarComunidades() {
-  const { data } = await api.get("/api/Comunidade");
-  comunidades.value = data;
-}
+    async buscarComunidades() {
+      this.comunidades = await ComunidadeService.listar();
+    },
 
-async function carregarCatequista() {
-  try {
-    const { data } = await api.get(`/api/Catequista/${id}`);
+    onInputTelefone(e: any) { this.form.telefone = masks.telefone(e.target.value); },
+    onInputData(e: any, campo: 'nascimento' | 'admissao') { this.form[campo] = masks.data(e.target.value); },
+    onInputCEP(e: any) { this.form.cep = masks.cep(e.target.value); },
 
-    const u = data.usuario ?? {};
-    const e = u.endereco ?? {};
+    async salvar() {
+      try {
+        await CatequistaService.atualizar(this.id, this.form);
+        
+        await Swal.fire({
+          icon: "success",
+          title: "Atualizado!",
+          text: "Dados do catequista atualizados com sucesso.",
+        });
+        
+        this.$router.push('/Catequista');
+      } catch (error: any) {
+        console.log("DETALHES DO ERRO NO PUT:", error.response?.data);
+        Swal.fire("Erro", "Não foi possível atualizar.", "error");
+      }
+    },
 
-    form.value.id_usuario = u.id_usuario;
-    form.value.nome = u.nome;
-    form.value.telefone = u.telefone;
-    form.value.email = u.email;
-    form.value.sexo = u.sexo;
-    form.value.ativo = u.ativo ?? false;
-    form.value.nascimento = u.data_nascimento;
-    form.value.admissao = data.data_admissao;
-    form.value.formacao = data.formacao ?? "";
-    form.value.id_comunidade_fk = u.comunidade?.id_comunidade ?? 0;
+    async confirmarVoltar() {
+        const result = await Swal.fire({
+          icon: 'warning',
+          title: "Atenção!",
+          text: "Os dados alterados não serão salvos, quer retornar mesmo?",
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33', 
+          confirmButtonText: 'Sim, sair',
+          cancelButtonText: 'Cancelar'
+        });
 
-    form.value.logradouro = e.logradouro ?? "";
-    form.value.numero = e.numero ?? "";
-    form.value.complemento = e.complemento ?? "";
-    form.value.bairro = e.bairro ?? "";
-    form.value.cidade = e.cidade ?? "";
-    form.value.estado = e.estado ?? "";
-    form.value.cep = e.cep ?? "";
-    form.value.uf = e.uf ?? "";
+        if (result.isConfirmed) {
+          this.$router.push('/Catequista');
+        }
+      }
+  },
 
-  } catch (err) {
-    console.error("Erro ao carregar catequista:", err);
-  }
-}
-
-async function voltar() {
-  const confirmar = await Swal.fire({
-    title: "Tem certeza?",
-    text: "Se voltar agora, alterações não salvas serão perdidas.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Sim, voltar",
-    cancelButtonText: "Cancelar",
-  });
-
-  if (confirmar.isConfirmed) router.push("/Catequista");
-}
-
-async function confirmarSalvar() {
-  const confirmar = await Swal.fire({
-    title: "Confirmar edição?",
-    text: "Deseja realmente salvar as alterações deste catequista?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Sim, salvar",
-    cancelButtonText: "Cancelar",
-  });
-
-  if (confirmar.isConfirmed) salvar();
-}
-
-async function salvar() {
-  try {
-    const payload = {
-  id_catequista: Number(id),
-  formacao: form.value.formacao,
-  data_admissao: form.value.admissao.split("/").reverse().join("-"),
-  usuario: {
-    id_usuario: form.value.id_usuario,
-    nome: form.value.nome,
-    data_nascimento: form.value.nascimento.split("/").reverse().join("-"),
-    telefone: form.value.telefone,
-    email: form.value.email,
-    sexo: form.value.sexo,
-    ativo: Boolean(form.value.ativo),
-    id_comunidade_fk: Number(form.value.id_comunidade_fk),
-    endereco: {
-      logradouro: form.value.logradouro,
-      numero: form.value.numero,
-      complemento: form.value.complemento,
-      bairro: form.value.bairro,
-      cidade: form.value.cidade,
-      estado: form.value.estado,
-      cep: form.value.cep,
-      uf: form.value.uf ?? ""
-    }
+  async mounted() {
+    await this.buscarComunidades();
+    await this.carregarDados();
   }
 };
-
-    const response = await api.put(`/api/Catequista/${id}`, payload);
-
-    Swal.fire({
-    icon: "success",
-    title: "Atualizado!",
-    text: "Os dados do catequista foram salvos com sucesso.",
-    confirmButtonText: "OK"
-  }).then(() => {
-  router.push("/Catequista");
-});
-
-    router.push("/Catequista");
-
-  } catch (err) {
-    console.error("Erro no PUT:", err);
-    console.error("Status:", err.response?.status);
-    console.error("Data:", err.response?.data);
-    console.error("Payload enviado:", err.config?.data);
-  }
-}
-
-
-onMounted(() => {
-  carregarComunidades();
-  carregarCatequista();
-});
 </script>
 
 

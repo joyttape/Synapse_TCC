@@ -45,8 +45,8 @@
             <div class="filter-item">
               <label>Ordem:</label>
               <select v-model="filtroOrdem">
-                <option value="Crescente">A → Z</option>
-                <option value="Decrescente">Z → A</option>
+                <option value="Crescente">Crescente</option>
+                <option value="Decrescente">Decrescente</option>
               </select>
             </div>
 

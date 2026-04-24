@@ -5,333 +5,316 @@
       <SideBar v-model:recolhida="isSideBarRecolhida" />
 
       <div class="form-page" :class="{ 'content-recolhido': isSideBarRecolhida }">
+
         <main class="page-content">
-          <div class="container my-5">
-            <div class="return-button-container">
-              <RouterLink to="/Catequizando" class="btn-return">
-                &larr; Voltar
-              </RouterLink>
-            </div>
 
-            <h1 class="mb-4 titulo">Visualizar Dados</h1>
+           <div class="container my-5">
 
-            <div class="card form-card mb-4 shadow-sm">
-              <div class="row g-0">
-                <div class="col-md-9 p-4">
-                  <h2 class="secao-titulo">Dados Pessoais</h2>
+              <div class="return-button-container">
+              <button class="btn-return" @click="confirmarVoltar">
+                ← Voltar
+              </button>
 
-                  <div class="row">
-                    <div class="col-12 mb-3">
-                      <label class="form-label">Nome Completo <span class="text-danger">*</span></label>
-                      <input v-model="form.nome" type="text" class="form-control input-sim" disabled />
-                    </div>
+              </div>
 
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Telefone <span class="text-danger">*</span></label>
-                      <input v-model="form.telefone" type="text" class="form-control input-sim" disabled />
-                    </div>
+              <h1 class="mb-4 titulo">Dados do Catequizando</h1>
 
-                    <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
-                      <div class="flex-fill">
-                        <label class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
-                        <input v-model="form.nascimento" type="text" class="form-control input-small" disabled />
+              <div class="card form-card mb-4 shadow-sm">
+                <div class="row g-0">
+                  <div class="col-md-9 p-4">
+                    <h2 class="secao-titulo">Dados Pessoais</h2>
+
+                    <div class="row">
+                      <div class="col-12 mb-3">
+                        <label class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                        <input v-model="form.nome" type="text" class="form-control input-sim" readonly/>
                       </div>
 
-                      <div class="flex-fill">
-                        <label class="form-label">Ativo <span class="text-danger">*</span></label>
-                        <select v-model="form.ativo" class="form-select input-small" disabled>
-                          <option value="">Selecione</option>
-                          <option value="true">Sim</option>
-                          <option value="false">Não</option>
-                        </select>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Telefone <span class="text-danger">*</span></label>
+                        <input  readonly v-model="form.telefonecatequizando" @input="onInputTelefone($event, 'telefonecatequizando')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
                       </div>
-                    </div>
 
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Comunidade <span class="text-danger">*</span></label>
-                      <select v-model="form.id_comunidade_fk" class="form-select input-small" disabled>
-                        <option value="">Selecione</option>
-                        <option
-                          v-for="c in comunidades"
-                          :key="c.id_comunidade"
-                          :value="c.id_comunidade"
-                        >
-                          {{ c.nome }}
-                        </option>
-                      </select>
-                    </div>
+                      <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
+                        <div class="flex-fill">
+                          <label class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
+                          <input readonly v-model="form.nascimento" @input="onInputData" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
+                        </div>
 
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Sexo <span class="text-danger">*</span></label>
-                      <select v-model="form.sexo" class="form-select input-small" disabled>
-                        <option value="">Selecione</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Feminino">Feminino</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Nome do Pai <span class="text-danger">*</span></label>
-                      <input v-model="form.nomepai" type="text" class="form-control input-sim" disabled />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Telefone do Pai <span class="text-danger">*</span></label>
-                      <input v-model="form.telefonepai" type="text" class="form-control input-sim" disabled />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Nome da Mãe <span class="text-danger">*</span></label>
-                      <input v-model="form.nomemae" type="text" class="form-control input-sim" disabled />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Telefone da Mãe <span class="text-danger">*</span></label>
-                      <input v-model="form.telefonemae" type="text" class="form-control input-sim" disabled />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Email <span class="text-danger">*</span></label>
-                      <input v-model="form.email" type="email" class="form-control input-sim" disabled />
-                    </div>
-
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">Possui pais juntos? <span class="text-danger">*</span></label>
-                      <div class="checkbox-group">
-                        <label><input type="radio" value="true" v-model="form.paisjuntos" disabled /> Sim</label>
-                        <label><input type="radio" value="false" v-model="form.paisjuntos" disabled /> Não</label>
+                        <div class="flex-fill">
+                          <label class="form-label">Ativo <span class="text-danger">*</span></label>
+                          <select readonly v-model="form.ativo" class="form-select input-small">
+                            <option value="">Selecione</option>
+                            <option :value=true>Sim</option>
+                            <option :value=false>Não</option>
+                          </select>
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">Frequenta outras igrejas? <span class="text-danger">*</span></label>
-                      <div class="checkbox-group">
-                        <label><input type="radio" value="true" v-model="form.frequentaigrejas" disabled /> Sim</label>
-                        <label><input type="radio" value="false" v-model="form.frequentaigrejas" disabled /> Não</label>
+
+
+                     <div class="col-md-6 mb-3">
+                          <label class="form-label">Comunidade <span class="text-danger">*</span></label>
+
+                          <select readonly v-model="form.id_comunidade_fk" class="form-select input-small">
+                              <option value="">Selecione</option>
+                              <option
+                                v-for="c in comunidades"
+                                :key="c.id_comunidade"
+                                :value="c.id_comunidade"
+                              >
+                                {{ c.nome }}
+                              </option>
+                            </select>
                       </div>
-                    </div>
 
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">É batizado(a)? <span class="text-danger">*</span></label>
-                      <div class="checkbox-group">
-                        <label><input type="radio" value="true" v-model="form.batizado" disabled /> Sim</label>
-                        <label><input type="radio" value="false" v-model="form.batizado" disabled /> Não</label>
+                      <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
+                        <div class="flex-fill">
+                          <label class="form-label">Sexo <span class="text-danger">*</span></label>
+                          <select readonly v-model="form.sexo" class="form-select input-small">
+                            <option value="">Selecione</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                          </select>
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">Frequenta a comunidade? <span class="text-danger">*</span></label>
-                      <div class="checkbox-group">
-                        <label><input type="radio" value="true" v-model="form.frequentacomunidade" disabled /> Sim</label>
-                        <label><input type="radio" value="false" v-model="form.frequentacomunidade" disabled /> Não</label>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Nome - Responsável 1 <span class="text-danger">*</span></label>
+                        <input readonly v-model="form.responsavel_nome1" type="text" class="form-control input-sim" />
                       </div>
-                    </div>
 
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Telefone Responsável 1 <span class="text-danger">*</span></label>
+                        <input readonly v-model="form.telefone_resp1" @input="onInputTelefone($event, 'telefone_resp1')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                      </div>
+
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Nome - Responsável 2 <span class="text-danger">*</span></label>
+                        <input readonly v-model="form.responsavel_nome2" type="text" class="form-control input-sim" />
+                      </div>
+
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Telefone Responsável 2 <span class="text-danger">*</span></label>
+                        <input readonly v-model="form.telefone_resp2" @input="onInputTelefone($event, 'telefone_resp2')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                      </div>
+
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input readonly v-model="form.email" @input="limitarEmail" type="email" class="form-control input-sim" placeholder="seuemail@email.com" />
+                      </div>
+
+                      <div class="col-md-3 mb-3">
+                          <label class="form-label">Possui pais juntos? <span class="text-danger">*</span></label>
+                          <div class="checkbox-group">
+                            <label><input readonly type="radio" :value="true" v-model="form.paisjuntos"> Sim</label>
+                            <label><input readonly type="radio" :value="false" v-model="form.paisjuntos"> Não</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                          <label class="form-label">Frequenta outras igrejas? <span class="text-danger">*</span></label>
+                          <div class="checkbox-group">
+                            <label><input readonly type="radio" :value="true" v-model="form.frequentaigrejas"> Sim</label>
+                            <label><input readonly type="radio" :value="false" v-model="form.frequentaigrejas"> Não</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                          <label class="form-label">É batizado(a)? <span class="text-danger">*</span></label>
+                          <div class="checkbox-group">
+                            <label><input readonly type="radio" :value="true" v-model="form.batizado"> Sim</label>
+                            <label><input readonly type="radio" :value="false" v-model="form.batizado"> Não</label>
+                          </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                          <label class="form-label">Frequenta a comunidade? <span class="text-danger">*</span></label>
+                          <div class="checkbox-group">
+                            <label><input readonly type="radio" :value="true" v-model="form.frequentacomunidade"> Sim</label>
+                            <label><input readonly type="radio" :value="false" v-model="form.frequentacomunidade"> Não</label>
+                          </div>
+                      </div>
+
+
+                    </div>
                   </div>
-                </div>
 
-                <div class="col-md-3 d-flex flex-column align-items-center justify-content-center foto-area p-4">
-                  <div class="foto-border mb-3">
-                    <div class="foto-placeholder">
-                      <img src="/src/assets/icones/acoes/iconfomr.png" />
+                  <div class="col-md-3 d-flex flex-column align-items-center justify-content-center foto-area p-4">
+                    <div class="foto-border mb-3">
+                      <div class="foto-placeholder"><img  src="/src/assets/icones/acoes/iconfomr.png"/></div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div class="card form-card p-4 mb-4 shadow-sm">
-              <h2 class="secao-titulo">Dados de endereço</h2>
+              <div class="card form-card p-4 mb-4 shadow-sm">
+                <h2 class="secao-titulo">Dados de endereço</h2>
 
-              <div class="row mt-3">
-                <div class="col-12 mb-3">
-                  <label class="form-label">Logradouro <span class="text-danger">*</span></label>
-                  <input v-model="form.logradouro" type="text" class="form-control input-sim" disabled />
-                </div>
+                <div class="row mt-3">
+                  <div class="col-12 mb-3">
+                    <label class="form-label">Logradouro <span class="text-danger">*</span></label>
+                    <input readonly v-model="form.logradouro" type="text" class="form-control input-sim" />
+                  </div>
 
-                <div class="col-md-5 mb-3">
-                  <label class="form-label">Complemento <span class="text-danger">*</span></label>
-                  <input v-model="form.complemento" type="text" class="form-control input-sim" disabled />
-                </div>
+                  <div class="col-md-5 mb-3">
+                    <label class="form-label">Complemento <span class="text-danger">*</span></label>
+                    <input readonly v-model="form.complemento" type="text" class="form-control input-sim" />
+                  </div>
 
-                <div class="col-md-5 mb-3">
-                  <label class="form-label">Bairro <span class="text-danger">*</span></label>
-                  <input v-model="form.bairro" type="text" class="form-control input-sim" disabled />
-                </div>
+                  <div class="col-md-5 mb-3">
+                    <label class="form-label">Bairro <span class="text-danger">*</span></label>
+                    <input readonly v-model="form.bairro" type="text" class="form-control input-sim" />
+                  </div>
 
-                <div class="col-md-3 mb-3">
-                  <label class="form-label">Estado <span class="text-danger">*</span></label>
-                  <input v-model="form.estado" type="text" class="form-control input-small" disabled />
-                </div>
+                  <div class="col-md-2 mb-3"></div>
 
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Cidade <span class="text-danger">*</span></label>
-                  <input v-model="form.cidade" type="text" class="form-control input-small" disabled />
-                </div>
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label">Estado <span class="text-danger">*</span></label>
+                    <input readonly v-model="form.estado" type="text" class="form-control input-small" />
+                  </div>
 
-                <div class="col-md-2 mb-3">
-                  <label class="form-label">Número <span class="text-danger">*</span></label>
-                  <input v-model="form.numero" type="text" class="form-control input-small" disabled />
-                </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Cidade <span class="text-danger">*</span></label>
+                    <input readonly v-model="form.cidade" type="text" class="form-control input-small" />
+                  </div>
 
-                <div class="col-md-3 mb-3">
-                  <label class="form-label">CEP <span class="text-danger">*</span></label>
-                  <input v-model="form.cep" type="text" class="form-control input-small" disabled />
+                  <div class="col-md-2 mb-3">
+                    <label class="form-label">Número <span class="text-danger">*</span></label>
+                    <input  readonly v-model="form.numero" type="text" class="form-control input-small" />
+                  </div>
+
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label">CEP <span class="text-danger">*</span></label>
+                    <input readonly v-model="form.cep" @input="onInputCEP" type="text" class="form-control input-small" placeholder="00000-000" />
+                  </div>
                 </div>
               </div>
             </div>
-
-          </div>
         </main>
+
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive, ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { api } from '@/common/http';
-import SideBar from '@/components/SideBar.vue';
+import SideBar from "@/components/SideBar.vue";
+import { CatequizandoService } from "@/services/CatequizandoService";
+import { ComunidadeService } from "@/services/ComunidadeService";
+import { masks } from "@/utils/masks";
+import Swal from "sweetalert2";
 
 export default {
-  name: 'ViewCatequizando',
-  components: { SideBar },
+name: 'ViewCatequizando',
+components: {SideBar},
+data() {
+  return{
+    isSideBarRecolhida: true,
+    comunidades: [] as any[],
+    id: 0,
+    form: {
+        nome: '',
+        telefonecatequizando: '',
+        nascimento: '',
+        email: '',
+        sexo: '',
+        ativo: null as boolean | null,
+        batizado: null as boolean | null,
+        paisjuntos: null as boolean | null,
+        frequentaigrejas: null as boolean | null,
+        frequentacomunidade: null as boolean | null,
 
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
+        responsavel_nome1: '',
+        responsavel_nome2: '',
+        telefone_resp1: '',
+        telefone_resp2: '',
 
-    const isSideBarRecolhida = ref(true);
-    const comunidades = ref([]);
+        id_comunidade_fk: '',
 
-    const form = reactive({
-      nome: '',
-      telefone: '',
-      nascimento: '',
-      ativo: '',
-      id_comunidade_fk: '',
-      sexo: '',
-      email: '',
-      logradouro: '',
-      complemento: '',
-      bairro: '',
-      estado: '',
-      cidade: '',
-      numero: '',
-      cep: '',
-      nomepai: '',
-      telefonepai: '',
-      nomemae: '',
-      telefonemae: '',
-      paisjuntos: '',
-      frequentaigrejas: '',
-      batizado: '',
-      frequentacomunidade: ''
-    });
-
-    async function buscarComunidades() {
-      try {
-        const resposta = await api.get('/api/Comunidade');
-        console.log("Comunidades recebidas:", resposta.data);
-
-        comunidades.value = resposta.data;
-      } catch (error) {
-        console.error('Erro ao buscar comunidades:', error);
+        logradouro: '',
+        complemento: '',
+        bairro: '',
+        estado: '',
+        cidade: '',
+        numero: '',
+        cep: ''
       }
-    }
-
-    async function carregarCatequizando(id : number) {
-      try {
-        console.log("Carregando catequizando ID:", id);
-
-        const { data } = await api.get(`/api/Catequizando/${id}`);
-
-        console.log("Dados recebidos da API:", data);
-
-        console.log("data.usuario:", data.usuario);
-        console.log("data.usuario.endereco:", data.usuario?.endereco);
-
-        const u = data.usuario ?? {};
-        const e = u.endereco ?? {};
-
-        form.nome = u.nome ?? '';
-        form.telefone = formatarTelefone(u.telefone ?? '');
-        form.nascimento = u.data_nascimento ? formatarDataNascimento(u.data_nascimento) : '';
-        form.ativo = u.ativo !== undefined ? String(u.ativo) : '';
-        form.sexo = u.sexo ?? '';
-        form.email = u.email ?? '';
-        form.id_comunidade_fk = u.id_comunidade_fk ?? '';
-
-        console.log(" Dados do usuário preenchidos:", { ...form });
-
-
-        form.logradouro = e.logradouro ?? '';
-        form.complemento = e.complemento ?? '';
-        form.bairro = e.bairro ?? '';
-        form.estado = e.estado ?? '';
-        form.cidade = e.cidade ?? '';
-        form.numero = e.numero ?? '';
-        form.cep = formatarCEP(e.cep ?? '');
-
-        form.nomepai = data.nome_pai ?? '';
-        form.telefonepai = formatarTelefone(data.telefone_pai ?? '');
-        form.nomemae = data.nome_mae ?? '';
-        form.telefonemae = formatarTelefone(data.telefone_mae ?? '');
-
-        form.paisjuntos = data.pais_juntos !== undefined ? String(data.pais_juntos) : '';
-        form.frequentaigrejas =
-          data.frequenta_outras_igrejas !== undefined ? String(data.frequenta_outras_igrejas) : '';
-        form.batizado = data.batizado !== undefined ? String(data.batizado) : '';
-        form.frequentacomunidade =
-          data.frequenta_comunidade !== undefined ? String(data.frequenta_comunidade) : '';
-
-      } catch (error) {
-        console.error('Erro ao carregar catequizando:', error);
-        router.push('/Catequizando');
-      }
-    }
-
-    function formatarTelefone(valor:string) {
-      if (!valor) return '';
-      return valor
-        .replace(/\D/g, '')
-        .replace(/(\d{2})(\d)/, '($1) $2')
-        .replace(/(\d{5})(\d)/, '$1-$2')
-        .replace(/(-\d{4})\d+?$/, '$1');
-    }
-
-    function formatarCEP(valor:string) {
-      if (!valor) return '';
-      return valor.replace(/\D/g, '').replace(/(\d{5})(\d)/, '$1-$2');
-    }
-
-    function formatarDataNascimento(data:string) {
-      if (!data) return '';
-      return data.split('-').reverse().join('/');
-    }
-    onMounted(() => {
-      buscarComunidades();
-
-      const idParam = route.params.id;
-      const id = Number(idParam)
-      if (!id) {
-        console.error('ID não encontrado na URL');
-        return;
-      }
-
-      carregarCatequizando(id);
-    });
-
-    return {
-      isSideBarRecolhida,
-      comunidades,
-      form
-    };
   }
-};
-</script>
+},
 
+methods: {
+
+  async carregarDados(){
+    try{
+      this.id = Number(this.$route.params.id);
+      const dados = await CatequizandoService.buscarPorId(this.id);
+
+      this.form ={
+        nome: dados.usuario.nome,
+        telefonecatequizando: masks.telefone(dados.usuario.telefone),
+        nascimento: masks.data(dados.usuario.data_nascimento),
+        email: dados.usuario.email,
+        sexo: dados.usuario.sexo,
+        ativo: dados.usuario.ativo,
+        paisjuntos: Boolean(dados.paisjuntos),
+        frequentaigrejas: Boolean(dados.frequentaigrejas),
+        frequentacomunidade: Boolean(dados.frequentacomunidade),
+        batizado: Boolean(dados.batizado),
+        responsavel_nome1: dados.nome_pai,
+        telefone_resp1: masks.telefone(dados.telefone_pai),
+        responsavel_nome2: dados.nome_mae,
+        telefone_resp2: masks.telefone(dados.telefone_mae),
+        id_comunidade_fk: dados.usuario.comunidade ? Number(dados.usuario.comunidade.id_comunidade) : null,
+        logradouro: dados.usuario.endereco.logradouro,
+        complemento: dados.usuario.endereco.complemento,
+        bairro: dados.usuario.endereco.bairro,
+        estado: dados.usuario.endereco.estado,
+        cidade: dados.usuario.endereco.cidade,
+        numero: dados.usuario.endereco.numero,
+        cep: masks.cep(dados.usuario.endereco.cep)
+      };
+    } catch (error) {
+      Swal.fire("Erro", "Não foi possível carregar os dados do catequizando.", "error");
+    }
+  },
+
+  async buscarComunidades(){
+    this.comunidades = await ComunidadeService.listar();
+  },
+
+  onInputTelefone(
+  event: Event,
+  campo: 'telefonecatequizando' | 'telefone_resp1' | 'telefone_resp2'
+) {
+  const input = event.target as HTMLInputElement;
+
+  this.form[campo] = masks.telefone(input.value);
+},
+    onInputData(e: any) {
+      this.form.nascimento = masks.data(e.target.value);
+    },
+
+    onInputCEP(e: any) {
+      this.form.cep = masks.cep(e.target.value);
+    },
+
+    limitarEmail(e: any) {
+      this.form.email = e.target.value.slice(0, 100);
+    },
+
+
+    async confirmarVoltar() {
+      this.$router.push('/Catequizando');
+      }
+},
+
+async mounted() {
+    await this.buscarComunidades();
+    await this.carregarDados();
+}
+}
+</script>
 
 <style scoped>
 

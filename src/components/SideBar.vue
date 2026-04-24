@@ -55,6 +55,42 @@
           </transition>
         </router-link>
 
+          <router-link to="/encontros" class="link-navegacao d-flex align-items-center" active-class="ativo">
+            <div class="container-icone">
+              <img src="@/assets/icones/encontro/encontro_icone.svg" alt="Ícone de encontros" class="icone-barra-lateral">
+            </div>
+            <transition name="desvanecimento">
+              <span v-if="!recolhida" class="texto-navegacao ms-3">Encontros</span>
+            </transition>
+          </router-link>
+
+          <router-link to="/frequencia" class="link-navegacao d-flex align-items-center" active-class="ativo">
+            <div class="container-icone">
+              <img src="@/assets/icones/frequencia/frequencia_icone.svg" alt="Ícone de frequência" class="icone-barra-lateral">
+            </div>
+            <transition name="desvanecimento">
+              <span v-if="!recolhida" class="texto-navegacao ms-3">Frequência</span>
+            </transition>
+          </router-link>
+
+          <router-link to="/conteudos" class="link-navegacao d-flex align-items-center" active-class="ativo">
+            <div class="container-icone">
+              <img src="@/assets/icones/conteudos/conteudos_icone.svg" alt="Ícone de conteúdos" class="icone-barra-lateral">
+            </div>
+            <transition name="desvanecimento">
+              <span v-if="!recolhida" class="texto-navegacao ms-3">Conteúdos</span>
+            </transition>
+          </router-link>
+
+          <router-link to="/avisos" class="link-navegacao d-flex align-items-center" active-class="ativo">
+            <div class="container-icone">
+              <img src="@/assets/icones/avisos/avisos_icone.svg" alt="Ícone de avisos" class="icone-barra-lateral">
+            </div>
+            <transition name="desvanecimento">
+              <span v-if="!recolhida" class="texto-navegacao ms-3">Avisos</span>
+            </transition>
+          </router-link>
+
         <router-link to="/Documento" class="link-navegacao d-flex align-items-center" active-class="ativo">
           <div class="container-icone">
             <img src="@/assets/icones/documento/documentos_icone.svg" alt="Ícone de documentos" class="icone-barra-lateral">

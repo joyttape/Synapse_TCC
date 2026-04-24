@@ -187,7 +187,7 @@ export default {
       const inicio = (this.paginaAtual - 1) * this.itensPorPagina + 1;
       const fim = Math.min(this.paginaAtual * this.itensPorPagina, this.listaFiltrada.length);
       if (this.listaFiltrada.length === 0) return "0";
-      return `${inicio} - ${fim} de ${this.listaFiltrada.length}`;
+      return `${inicio} - ${fim}`;
     }
   },
   methods: {

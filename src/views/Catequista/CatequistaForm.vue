@@ -1,158 +1,166 @@
 <template>
   <div class="page-wrapper">
     <div class="layout-container">
-
       <SideBar v-model:recolhida="isSideBarRecolhida" />
 
       <div class="form-page" :class="{ 'content-recolhido': isSideBarRecolhida }">
-
         <main class="page-content">
-
-           <div class="container my-5">
-
+          <div class="container my-5">
             <div class="return-button-container">
               <button class="btn-return" @click="confirmarVoltar">
                 ← Voltar
               </button>
             </div>
 
-              <h1 class="mb-4 titulo">Cadastro de Catequistas</h1>
+            <h1 class="mb-4 titulo">Cadastro de Catequistas</h1>
 
-              <div class="card form-card mb-4 shadow-sm">
-                <div class="row g-0">
-                  <div class="col-md-9 p-4">
-                    <h2 class="secao-titulo">Dados Pessoais</h2>
+            <div class="card form-card mb-4 shadow-sm">
+              <div class="row g-0">
+                <div class="col-md-9 p-4">
+                  <h2 class="secao-titulo">Dados Pessoais</h2>
 
-                    <div class="row">
-                      <div class="col-12 mb-3">
-                        <label class="form-label">Nome Completo <span class="text-danger">*</span></label>
-                        <input v-model="form.nome" type="text" class="form-control input-sim" />
+                  <div class="row">
+                    <div class="col-12 mb-3">
+                      <label class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                      <input v-model="form.nome" type="text" class="form-control input-sim" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Telefone <span class="text-danger">*</span></label>
+                      <input 
+                        v-model="form.telefone" 
+                        @input="onInputTelefone" 
+                        type="text" 
+                        class="form-control input-sim" 
+                        placeholder="(00) 00000-0000" 
+                      />
+                    </div>
+
+                    <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
+                      <div class="flex-fill">
+                        <label class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
+                        <input 
+                          v-model="form.nascimento" 
+                          @input="onInputData($event, 'nascimento')" 
+                          type="text" 
+                          class="form-control input-small" 
+                          placeholder="dd/mm/aaaa" 
+                        />
                       </div>
 
-                      <div class="col-md-6 mb-3">
-                        <label class="form-label">Telefone <span class="text-danger">*</span></label>
-                        <input v-model="form.telefone" @input="mascaraTelefone" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                      <div class="flex-fill">
+                        <label class="form-label">Ativo <span class="text-danger">*</span></label>
+                        <select v-model="form.ativo" class="form-select input-small">
+                          <option :value="null">Selecione</option>
+                          <option :value="true">Sim</option>
+                          <option :value="false">Não</option>
+                        </select>
                       </div>
+                    </div>
 
-                      <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
-                        <div class="flex-fill">
-                          <label class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
-                          <input v-model="form.nascimento" @input="mascaraData($event,'nascimento')" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
-                        </div>
-
-                        <div class="flex-fill">
-                          <label class="form-label">Ativo <span class="text-danger">*</span></label>
-                          <select v-model="form.ativo" class="form-select input-small">
-                            <option value="">Selecione</option>
-                            <option :value=true>Sim</option>
-                            <option :value=false>Não</option>
-                          </select>
-                        </div>
+                    <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
+                      <div class="flex-fill">
+                        <label class="form-label">Data de Admissão <span class="text-danger">*</span></label>
+                        <input 
+                          v-model="form.admissao" 
+                          @input="onInputData($event, 'admissao')" 
+                          type="text" 
+                          class="form-control input-small" 
+                          placeholder="dd/mm/aaaa" 
+                        />
                       </div>
+                    </div>
 
-                      <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
-                        <div class="flex-fill">
-                          <label class="form-label">Data de Admissão <span class="text-danger">*</span></label>
-                          <input v-model="form.admissao" @input="mascaraData($event,'admissao')" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
-                        </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Comunidade <span class="text-danger">*</span></label>
+                      <select v-model="form.id_comunidade_fk" class="form-select input-small">
+                        <option value="">Selecione</option>
+                        <option v-for="c in comunidades" :key="c.id_comunidade" :value="c.id_comunidade">
+                          {{ c.nome }}
+                        </option>
+                      </select>
+                    </div>
 
-                        <div class="flex-fill">
-                          <label class="form-label">Formação <span class="text-danger">*</span></label>
-                          <input v-model="form.formacao" type="text" class="form-control input-small" />
-                        </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Email <span class="text-danger">*</span></label>
+                      <input v-model="form.email" @input="limitarEmail" type="email" class="form-control input-sim" placeholder="seuemail@email.com" />
+                    </div>
+
+                    <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
+                      <div class="flex-fill">
+                        <label class="form-label">Sexo <span class="text-danger">*</span></label>
+                        <select v-model="form.sexo" class="form-select input-small">
+                          <option value="">Selecione</option>
+                          <option value="Masculino">Masculino</option>
+                          <option value="Feminino">Feminino</option>
+                        </select>
                       </div>
-
-                      <div class="col-md-6 mb-3">
-                          <label class="form-label">Comunidade <span class="text-danger">*</span></label>
-
-                          <select v-model="form.id_comunidade_fk" class="form-select input-small">
-                              <option value="">Selecione</option>
-                              <option
-                                v-for="c in comunidades"
-                                :key="c.id_comunidade"
-                                :value="c.id_comunidade"
-                              >
-                                {{ c.nome }}
-                              </option>
-                            </select>
-                      </div>
-
-                      <div class="col-md-6 mb-3">
-                        <label class="form-label">Email <span class="text-danger">*</span></label>
-                        <input v-model="form.email" @input="limitarEmail" type="email" class="form-control input-sim" placeholder="seuemail@email.com" />
-                      </div>
-
-                      <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
-                        <div class="flex-fill">
-                          <label class="form-label">Sexo <span class="text-danger">*</span></label>
-                          <select v-model="form.sexo" class="form-select input-small">
-                            <option value="">Selecione</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Feminino">Feminino</option>
-                          </select>
-                        </div>
-                      </div>
-
                     </div>
                   </div>
-
-                  <div class="col-md-3 d-flex flex-column align-items-center justify-content-center foto-area p-4">
-                    <div class="foto-border mb-3">
-                       <div class="foto-placeholder"><img  src="/src/assets/icones/acoes/iconfomr.png"/></div>
-                    </div>
-                    <button class="btn btn-primary btn-sm w-75">Upload foto</button>
-                    <small class="text-muted mt-2">JPG, PNG até 10MB</small>
-                  </div>
                 </div>
-              </div>
 
-              <div class="card form-card p-4 mb-4 shadow-sm">
-                <h2 class="secao-titulo">Dados de endereço</h2>
-
-                <div class="row mt-3">
-                  <div class="col-12 mb-3">
-                    <label class="form-label">Logradouro <span class="text-danger">*</span></label>
-                    <input v-model="form.logradouro" type="text" class="form-control input-sim" />
+                <div class="col-md-3 d-flex flex-column align-items-center justify-content-center foto-area p-4">
+                  <div class="foto-border mb-3">
+                    <div class="foto-placeholder"><img src="/src/assets/icones/acoes/iconfomr.png" /></div>
                   </div>
-
-                  <div class="col-md-5 mb-3">
-                    <label class="form-label">Complemento <span class="text-danger">*</span></label>
-                    <input v-model="form.complemento" type="text" class="form-control input-sim" />
-                  </div>
-
-                  <div class="col-md-5 mb-3">
-                    <label class="form-label">Bairro <span class="text-danger">*</span></label>
-                    <input v-model="form.bairro" type="text" class="form-control input-sim" />
-                  </div>
-
-                  <div class="col-md-2 mb-3"></div>
-
-                  <div class="col-md-3 mb-3">
-                    <label class="form-label">Estado <span class="text-danger">*</span></label>
-                    <input v-model="form.estado" type="text" class="form-control input-small" />
-                  </div>
-
-                  <div class="col-md-4 mb-3">
-                    <label class="form-label">Cidade <span class="text-danger">*</span></label>
-                    <input v-model="form.cidade" type="text" class="form-control input-small" />
-                  </div>
-
-                  <div class="col-md-2 mb-3">
-                    <label class="form-label">Número <span class="text-danger">*</span></label>
-                    <input v-model="form.numero" type="text" class="form-control input-small" />
-                  </div>
-
-                  <div class="col-md-3 mb-3">
-                    <label class="form-label">CEP <span class="text-danger">*</span></label>
-                    <input v-model="form.cep" @input="mascaraCEP" type="text" class="form-control input-small" placeholder="00000-000" />
-                  </div>
+                  <button class="btn btn-primary btn-sm w-75">Upload foto</button>
+                  <small class="text-muted mt-2">JPG, PNG até 10MB</small>
                 </div>
-              </div>
-
-              <div class="d-flex justify-content-end">
-                <button type="button" @click="salvar" class="btn salvar-btn">Salvar dados</button>
               </div>
             </div>
+
+            <div class="card form-card p-4 mb-4 shadow-sm">
+              <h2 class="secao-titulo">Dados de endereço</h2>
+              <div class="row mt-3">
+                <div class="col-12 mb-3">
+                  <label class="form-label">Logradouro <span class="text-danger">*</span></label>
+                  <input v-model="form.logradouro" type="text" class="form-control input-sim" />
+                </div>
+
+                <div class="col-md-5 mb-3">
+                  <label class="form-label">Complemento <span class="text-danger">*</span></label>
+                  <input v-model="form.complemento" type="text" class="form-control input-sim" />
+                </div>
+
+                <div class="col-md-5 mb-3">
+                  <label class="form-label">Bairro <span class="text-danger">*</span></label>
+                  <input v-model="form.bairro" type="text" class="form-control input-sim" />
+                </div>
+
+                <div class="col-md-2 mb-3"></div>
+
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Estado <span class="text-danger">*</span></label>
+                  <input v-model="form.estado" type="text" class="form-control input-small" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Cidade <span class="text-danger">*</span></label>
+                  <input v-model="form.cidade" type="text" class="form-control input-small" />
+                </div>
+
+                <div class="col-md-2 mb-3">
+                  <label class="form-label">Número <span class="text-danger">*</span></label>
+                  <input v-model="form.numero" type="text" class="form-control input-small" />
+                </div>
+
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">CEP <span class="text-danger">*</span></label>
+                  <input 
+                    v-model="form.cep" 
+                    @input="onInputCEP" 
+                    type="text" 
+                    class="form-control input-small" 
+                    placeholder="00000-000" 
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button type="button" @click="salvar" class="btn salvar-btn">Salvar dados</button>
+            </div>
+          </div>
         </main>
       </div>
     </div>
@@ -161,7 +169,9 @@
 
 <script lang="ts">
 import SideBar from '@/components/SideBar.vue';
-import { api } from '@/common/http';
+import { CatequistaService } from '@/services/CatequistaService';
+import { ComunidadeService } from '@/services/ComunidadeService';
+import { masks } from '@/utils/masks';
 import Swal from 'sweetalert2';
 
 export default {
@@ -170,22 +180,16 @@ export default {
   data() {
     return {
       isSideBarRecolhida: true,
-
-      comunidades: [],
-
+      comunidades: [] as any[],
       form: {
         admissao: '',
-        formacao: '',
-
         nome: '',
         telefone: '',
         nascimento: '',
-        ativo: null,
+        ativo: null as boolean | null,
         email: '',
         sexo: '',
-
         id_comunidade_fk: '',
-
         logradouro: '',
         complemento: '',
         bairro: '',
@@ -200,58 +204,42 @@ export default {
   methods: {
     async buscarComunidades() {
       try {
-        const { data } = await api.get("/api/Comunidade");
-        this.comunidades = Array.isArray(data) ? data : (data.items || []);
+        this.comunidades = await ComunidadeService.listar();
       } catch (err) {
         console.error("Erro ao carregar comunidades:", err);
       }
     },
 
-    mascaraTelefone(e: any) {
-      let v = e.target.value.replace(/\D/g, "");
-
-      v = v.replace(/(\d{2})(\d)/, "($1) $2");
-      v = v.replace(/(\d{5})(\d)/, "$1-$2");   
-      v = v.slice(0, 15);                     
-
-      e.target.value = v;
-      this.form.telefone = v;
+    onInputTelefone(e: any) {
+      this.form.telefone = masks.telefone(e.target.value);
     },
 
+    onInputData(e: any, campo: 'nascimento' | 'admissao') {
+      this.form[campo] = masks.data(e.target.value);
+    },
 
-    mascaraData(e: any, campo: string) {
-        let v = e.target.value.replace(/\D/g, "");
-
-        v = v.slice(0, 8);
-        v = v.replace(/(\d{2})(\d)/, "$1/$2");
-        v = v.replace(/(\d{2})(\d)/, "$1/$2");
-
-        e.target.value = v;
-        this.form[campo] = v;
-      },
-
-
-    mascaraCEP(e: any) {
-      let v = e.target.value.replace(/\D/g, "");
-      v = v.slice(0, 8);
-      v = v.replace(/(\d{5})(\d)/, "$1-$2");
-      e.target.value = v;
-      this.form.cep = v;
+    onInputCEP(e: any) {
+      this.form.cep = masks.cep(e.target.value);
     },
 
     limitarEmail(e: any) {
-      let v = e.target.value.slice(0, 100);
-      e.target.value = v;
-      this.form.email = v;
+      this.form.email = e.target.value.slice(0, 100);
     },
 
-    converterData(data: string) {
-      if (!data) return null;
-      const parts = data.split("/");
-      if (parts.length !== 3) return null;
-      const [dia, mes, ano] = parts;
-      return `${ano}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
+    async salvar() {
+      try {
+        await CatequistaService.cadastrar(this.form);
+        await Swal.fire({
+          icon: "success",
+          title: "Sucesso!",
+          text: "Catequista cadastrado com sucesso.",
+        });
+        this.$router.push('/Catequista');
+      } catch (error: any) {
+        console.log("DETALHES DO ERRO 400:", error.response?.data);
+      }
     },
+
     async confirmarVoltar() {
       const result = await Swal.fire({
         title: 'Deseja realmente voltar?',
@@ -265,95 +253,6 @@ export default {
       if (result.isConfirmed) {
         this.$router.push('/Catequista');
       }
-    },
-
-    limparformulario() {
-      this.form = {
-        admissao: '',
-        formacao: '',
-
-        nome: '',
-        telefone: '',
-        nascimento: '',
-        ativo: null,
-        email: '',
-        sexo: '',
-
-        id_comunidade_fk: '',
-
-        logradouro: '',
-        complemento: '',
-        bairro: '',
-        estado: '',
-        cidade: '',
-        numero: '',
-        cep: ''
-      };
-    },
-
-    async salvar() {
-      try {
-        const confirm = await Swal.fire({
-          title: "Confirmar cadastro?",
-          text: "Deseja realmente cadastrar este catequista?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonText: "Sim, salvar",
-          cancelButtonText: "Cancelar",
-        });
-
-        if (!confirm.isConfirmed) return;
-        if (!this.form.nome.trim()) {
-          Swal.fire("Atenção", "O nome é obrigatório.", "warning");
-          return;
-        }
-
-        const payload = {
-          formacao: this.form.formacao,
-          data_admissao: this.converterData(this.form.admissao),
-
-          usuario: {
-            nome: this.form.nome,
-            telefone: this.form.telefone,
-            email: this.form.email,
-            ativo: Boolean(this.form.ativo),
-            sexo: this.form.sexo,
-            data_nascimento: this.converterData(this.form.nascimento),
-
-            endereco: {
-              logradouro: this.form.logradouro,
-              numero: this.form.numero,
-              complemento: this.form.complemento,
-              bairro: this.form.bairro,
-              cidade: this.form.cidade,
-              estado: this.form.estado,
-              cep: this.form.cep,
-              uf: this.form.estado.substring(0, 2).toUpperCase()
-            },
-
-            id_comunidade_fk: Number(this.form.id_comunidade_fk)
-          }
-        };
-
-        console.log(this.form);
-
-
-        await api.post("/api/Catequista", payload);
-
-        await Swal.fire({
-          title: "Sucesso!",
-          text: "Catequista cadastrado com sucesso!",
-          icon: "success",
-          timer: 1800,
-          showConfirmButton: false,
-        });
-
-        this.$router.push(`/Catequista?salvo=${encodeURIComponent(this.form.nome)}`);
-
-      } catch (err) {
-        console.error(err);
-        Swal.fire("Erro", "Ocorreu um erro ao salvar o catequista.", "error");
-      }
     }
   },
 
@@ -362,7 +261,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 

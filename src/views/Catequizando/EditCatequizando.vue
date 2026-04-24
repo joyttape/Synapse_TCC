@@ -11,13 +11,13 @@
            <div class="container my-5">
 
               <div class="return-button-container">
-              <button class="btn-return" @click="voltar">
+              <button class="btn-return" @click="confirmarVoltar">
                 ← Voltar
               </button>
 
               </div>
 
-              <h1 class="mb-4 titulo">Editar Catequizando</h1>
+              <h1 class="mb-4 titulo">Editar dados de Catequizando</h1>
 
               <div class="card form-card mb-4 shadow-sm">
                 <div class="row g-0">
@@ -32,21 +32,21 @@
 
                       <div class="col-md-6 mb-3">
                         <label class="form-label">Telefone <span class="text-danger">*</span></label>
-                        <input v-model="form.telefone" @input="mascaraTelefone('telefone')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                        <input v-model="form.telefonecatequizando" @input="onInputTelefone($event, 'telefonecatequizando')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
                       </div>
 
                       <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
                         <div class="flex-fill">
                           <label class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
-                          <input v-model="form.nascimento" @input="mascaraData" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
+                          <input v-model="form.nascimento" @input="onInputData" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
                         </div>
 
                         <div class="flex-fill">
                           <label class="form-label">Ativo <span class="text-danger">*</span></label>
                           <select v-model="form.ativo" class="form-select input-small">
                             <option value="">Selecione</option>
-                            <option :value="true">Sim</option>
-                            <option :value="false">Não</option>
+                            <option :value=true>Sim</option>
+                            <option :value=false>Não</option>
                           </select>
                         </div>
                       </div>
@@ -66,7 +66,7 @@
                                 {{ c.nome }}
                               </option>
                             </select>
-                        </div>
+                      </div>
 
                       <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
                         <div class="flex-fill">
@@ -80,28 +80,28 @@
                       </div>
 
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Nome do Pai <span class="text-danger">*</span></label>
-                        <input v-model="form.nomepai" type="text" class="form-control input-sim" />
+                        <label class="form-label">Nome - Responsável 1 <span class="text-danger">*</span></label>
+                        <input v-model="form.responsavel_nome1" type="text" class="form-control input-sim" />
                       </div>
 
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Telefone do Pai <span class="text-danger">*</span></label>
-                        <input v-model="form.telefonepai" @input="mascaraTelefone('telefonepai')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                        <label class="form-label">Telefone Responsável 1 <span class="text-danger">*</span></label>
+                        <input v-model="form.telefone_resp1" @input="onInputTelefone($event, 'telefone_resp1')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
                       </div>
 
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Nome da Mãe <span class="text-danger">*</span></label>
-                        <input v-model="form.nomemae" type="text" class="form-control input-sim" />
+                        <label class="form-label">Nome - Responsável 2 <span class="text-danger">*</span></label>
+                        <input v-model="form.responsavel_nome2" type="text" class="form-control input-sim" />
                       </div>
 
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Telefone da Mãe <span class="text-danger">*</span></label>
-                        <input v-model="form.telefonemae" @input="mascaraTelefone('telefonemae')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                        <label class="form-label">Telefone Responsável 2 <span class="text-danger">*</span></label>
+                        <input v-model="form.telefone_resp2" @input="onInputTelefone($event, 'telefone_resp2')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
                       </div>
 
                       <div class="col-md-6 mb-3">
                         <label class="form-label">Email <span class="text-danger">*</span></label>
-                        <input v-model="form.email" type="email" class="form-control input-sim" placeholder="seuemail@email.com" />
+                        <input v-model="form.email" @input="limitarEmail" type="email" class="form-control input-sim" placeholder="seuemail@email.com" />
                       </div>
 
                       <div class="col-md-3 mb-3">
@@ -188,14 +188,13 @@
 
                   <div class="col-md-3 mb-3">
                     <label class="form-label">CEP <span class="text-danger">*</span></label>
-                    <input v-model="form.cep" @input="mascaraCEP" type="text" class="form-control input-small" placeholder="00000-000" />
+                    <input v-model="form.cep" @input="onInputCEP" type="text" class="form-control input-small" placeholder="00000-000" />
                   </div>
                 </div>
               </div>
 
               <div class="d-flex justify-content-end">
-                <button type="button" @click="confirmarSalvar" class="btn salvar-btn">Salvar dados </button>
-
+                <button type="button" @click="salvar" class="btn salvar-btn">Salvar dados</button>
               </div>
             </div>
 
@@ -206,205 +205,151 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { api } from '@/common/http';
+<script lang="ts">
+import SideBar from "@/components/SideBar.vue";
+import { CatequizandoService } from "@/services/CatequizandoService";
+import { ComunidadeService } from "@/services/ComunidadeService";
+import { masks } from "@/utils/masks";
 import Swal from "sweetalert2";
 
-import SideBar from "@/components/SideBar.vue";
+export default {
+name: 'EditCatequizando',
+components: {SideBar},
+data() {
+  return{
+    isSideBarRecolhida: true,
+    comunidades: [] as any[],
+    id: 0,
+    form: {
+        nome: '',
+        telefonecatequizando: '',
+        nascimento: '',
+        email: '',
+        sexo: '',
+        ativo: null as boolean | null,
+        batizado: null as boolean | null,
+        paisjuntos: null as boolean | null,
+        frequentaigrejas: null as boolean | null,
+        frequentacomunidade: null as boolean | null,
 
-const route = useRoute();
-const router = useRouter();
+        responsavel_nome1: '',
+        responsavel_nome2: '',
+        telefone_resp1: '',
+        telefone_resp2: '',
 
-const id = route.params.id;
+        id_comunidade_fk: '',
 
-const isSideBarRecolhida = ref(true);
-
-const comunidades = ref([]);
-
-const form = ref({
-  id_usuario: null,
-  nome: "",
-  telefone: "",
-  nascimento: "",
-  email: "",
-  sexo: "",
-  ativo: false,
-
-  id_comunidade_fk: "",
-
-  logradouro: "",
-  numero: "",
-  complemento: "",
-  bairro: "",
-  cidade: "",
-  estado: "",
-  cep: "",
-  uf: "",
-
-  nomepai: "",
-  telefonepai: "",
-  nomemae: "",
-  telefonemae: "",
-
-  paisjuntos: false,
-  frequentaigrejas: false,
-  frequentacomunidade: false,
-  batizado: false,
-});
-
-async function carregarComunidades() {
-  const { data } = await api.get("/api/Comunidade");
-  comunidades.value = data;
-}
-
-async function carregarCatequizando() {
-  try {
-
-    const { data } = await api.get(`/api/Catequizando/${id}`);
-
-
-    form.value.batizado = data.batizado;
-    form.value.frequentacomunidade = data.frequenta_comunidade;
-    form.value.frequentaigrejas = data.frequenta_outras_igrejas;
-    form.value.paisjuntos = data.pais_juntos;
-
-    form.value.nomepai = data.nome_pai;
-    form.value.telefonepai = data.telefone_pai;
-    form.value.nomemae = data.nome_mae;
-    form.value.telefonemae = data.telefone_mae;
-
-    const user = data.usuario;
-
-    form.value.id_usuario = user.id_usuario;
-    form.value.nome = user.nome;
-    form.value.telefone = user.telefone;
-    form.value.email = user.email;
-    form.value.sexo = user.sexo;
-    form.value.ativo = user.ativo;
-    form.value.nascimento = user.data_nascimento.split("-").reverse().join("/");
-
-    form.value.id_comunidade_fk = user.id_comunidade_fk;
-
-    const end = user.endereco;
-    form.value.logradouro = end.logradouro;
-    form.value.numero = end.numero;
-    form.value.complemento = end.complemento;
-    form.value.bairro = end.bairro;
-    form.value.cidade = end.cidade;
-    form.value.estado = end.estado;
-    form.value.cep = end.cep;
-    form.value.uf = end.uf ?? "";
-
-
-  } catch (err) {
-    console.error("Erro ao carregar dados (carregarCatequizando):", err);
+        logradouro: '',
+        complemento: '',
+        bairro: '',
+        estado: '',
+        cidade: '',
+        numero: '',
+        cep: ''
+      }
   }
-}
+},
 
-async function voltar() {
-  const confirmar = await Swal.fire({
-    title: "Tem certeza?",
-    text: "Se voltar agora, todas as alterações não salvas serão perdidas.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Sim, voltar",
-    cancelButtonText: "Cancelar",
-  });
+methods: {
 
-  if (confirmar.isConfirmed) {
-    router.push("/Catequizando");
-  }
-}
-async function confirmarSalvar() {
-  const confirmar = await Swal.fire({
-    title: "Confirmar edição?",
-    text: "Deseja realmente salvar as alterações deste catequizando?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Sim, salvar",
-    cancelButtonText: "Cancelar",
-  });
+  async carregarDados(){
+    try{
+      this.id = Number(this.$route.params.id);
+      const dados = await CatequizandoService.buscarPorId(this.id);
 
-  if (confirmar.isConfirmed) {
-    salvar();
-  }
-}
+      this.form ={
+        nome: dados.usuario.nome,
+        telefonecatequizando: masks.telefone(dados.usuario.telefone),
+        nascimento: masks.data(dados.usuario.data_nascimento),
+        email: dados.usuario.email,
+        sexo: dados.usuario.sexo,
+        ativo: dados.usuario.ativo,
+        paisjuntos: Boolean(dados.paisjuntos),
+        frequentaigrejas: Boolean(dados.frequentaigrejas),
+        frequentacomunidade: Boolean(dados.frequentacomunidade),
+        batizado: Boolean(dados.batizado),
+        responsavel_nome1: dados.nome_pai,
+        telefone_resp1: masks.telefone(dados.telefone_pai),
+        responsavel_nome2: dados.nome_mae,
+        telefone_resp2: masks.telefone(dados.telefone_mae),
+        id_comunidade_fk: dados.usuario.comunidade ? Number(dados.usuario.comunidade.id_comunidade) : null,
+        logradouro: dados.usuario.endereco.logradouro,
+        complemento: dados.usuario.endereco.complemento,
+        bairro: dados.usuario.endereco.bairro,
+        estado: dados.usuario.endereco.estado,
+        cidade: dados.usuario.endereco.cidade,
+        numero: dados.usuario.endereco.numero,
+        cep: masks.cep(dados.usuario.endereco.cep)
+      };
+    } catch (error) {
+      Swal.fire("Erro", "Não foi possível carregar os dados do catequizando.", "error");
+    }
+  },
 
+  async buscarComunidades(){
+    this.comunidades = await ComunidadeService.listar();
+  },
 
-async function salvar() {
-  try {
+  onInputTelefone(
+  event: Event,
+  campo: 'telefonecatequizando' | 'telefone_resp1' | 'telefone_resp2'
+) {
+  const input = event.target as HTMLInputElement;
 
-    const payload = {
-      id_catequizando: Number(id),
+  this.form[campo] = masks.telefone(input.value);
+},
+    onInputData(e: any) {
+      this.form.nascimento = masks.data(e.target.value);
+    },
 
-      batizado: form.value.batizado,
-      frequenta_comunidade: form.value.frequentacomunidade,
-      frequenta_outras_igrejas: form.value.frequentaigrejas,
-      pais_juntos: form.value.paisjuntos,
+    onInputCEP(e: any) {
+      this.form.cep = masks.cep(e.target.value);
+    },
 
-      nome_pai: form.value.nomepai,
-      telefone_pai: form.value.telefonepai,
-      nome_mae: form.value.nomemae,
-      telefone_mae: form.value.telefonemae,
+    limitarEmail(e: any) {
+      this.form.email = e.target.value.slice(0, 100);
+    },
 
-      usuario: {
-        id_usuario: form.value.id_usuario,
-        nome: form.value.nome,
-        data_nascimento: form.value.nascimento.split("/").reverse().join("-"),
-        telefone: form.value.telefone,
-        email: form.value.email,
-        sexo: form.value.sexo,
-        ativo: form.value.ativo,
+    async salvar(){
+      try{
+        await CatequizandoService.atualizar(this.id, this.form);
 
-        id_comunidade_fk: Number(form.value.id_comunidade_fk),
+        await Swal.fire({
+          icon: "success",
+          title: "Atualizado!",
+          text: "Dados do catequizando atualizados com sucesso.",
+        });
 
-        endereco: {
-          logradouro: form.value.logradouro,
-          numero: form.value.numero,
-          complemento: form.value.complemento,
-          bairro: form.value.bairro,
-          cidade: form.value.cidade,
-          estado: form.value.estado,
-          cep: form.value.cep,
-          uf: form.value.uf
+        this.$router.push('/Catequizando');
+      } catch (error: any){
+        console.log("DETALHES DO ERRO NO PUT:", error.response?.data);
+        Swal.fire("Erro", "Não foi possível atualizar.", "error");
+      }
+    },
+
+    async confirmarVoltar() {
+        const result = await Swal.fire({
+          icon: 'warning',
+          title: "Atenção!",
+          text: "Os dados alterados não serão salvos, quer retornar mesmo?",
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33', 
+          confirmButtonText: 'Sim, sair',
+          cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+          this.$router.push('/Catequizando');
         }
       }
-    };
+},
 
-    console.log("🟦 PAYLOAD ENVIADO PARA API:", payload);
-
-    const response = await api.put(`/api/Catequizando/${id}`, payload);
-
-    
-
-    Swal.fire({
-    icon: "success",
-    title: "Atualizado!",
-    text: "Os dados de catequizando foram salvos com sucesso.",
-    confirmButtonText: "OK"
-  }).then(() => {
-  router.push("/Catequizando");
-});
-
-  } catch (err) {
-    console.error("ERRO NO PUT:", err);
-
-    console.error("STATUS:", err.response?.status);
-    console.error("DATA:", err.response?.data);
-    console.error("PAYLOAD ENVIADO:", err.config?.data);
-  }
+async mounted() {
+    await this.buscarComunidades();
+    await this.carregarDados();
 }
-
-onMounted(() => {
-  carregarComunidades();
-  carregarCatequizando();
-});
+}
 </script>
 
 

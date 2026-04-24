@@ -85,13 +85,13 @@
               </thead>
               <tbody>
                 <tr v-for="(pessoa,index) in listaPaginada" :key="index">
-                  <td>{{ pessoa.nomecompleto }}</td>
-                  <td>{{ pessoa.datanascimento }}</td>
-                  <td>{{ pessoa.sexo }}</td>
-                  <td>{{ pessoa.turma }}</td>
-                  <td>{{ pessoa.telefone }}</td>
+                  <td>{{ pessoa.usuario.nome }}</td>
+                  <td>{{ pessoa.usuario.data_nascimento }}</td>
+                  <td>{{ pessoa.usuario.sexo }}</td>
+                  <td>{{ pessoa.turma?.nome ?? '-' }}</td>
+                  <td>{{ pessoa.usuario.telefone }}</td>
                   <td>
-                    {{ pessoa.status ? 'Ativo' : 'Inativo'}}
+                    {{ pessoa.usuario.ativo ? 'Ativo' : 'Inativo'}}
                   </td>
                   <td class="action-buttons">
                       <RouterLink :to="`/Catequizando/Detalhes/${pessoa.id_catequizando}`">
@@ -136,27 +136,18 @@
 
 <script lang="ts">
 import SideBar from '@/components/SideBar.vue';
-import axios from 'axios';
-import { api } from '@/common/http';
+import type { Catequizando } from '@/types/Catequizando';
+import type { Turma } from '@/types/Turma';
+import { CatequizandoService } from '@/services/CatequizandoService';
 import Swal from 'sweetalert2'
 
 export default {
   name: 'Catequizandos',
-
   data() {
   return {
     isSideBarRecolhida: true,
-    turmasMapa: {} as Record<number, string>,
-    listacatequizandos: [] as Array<{
-      id_catequizando: number,
-      nomecompleto: string,
-      datanascimento: string,
-      sexo: string,
-      turma: string,
-      telefone: string,
-      status: boolean
-    }>,
-
+    turmas: [] as Turma [],
+    listacatequizandos: [] as Catequizando [],
     pesquisa: "",
     filtroTurma: "Todos",
     filtroSexo: "Todos",
@@ -168,37 +159,36 @@ export default {
   };
 },
 
+components:{SideBar},
 
-  components:{
-    SideBar,
-  },
-  computed: {
+computed: {
+
     listafiltrada() {
       let lista = [...this.listacatequizandos];
 
       if (this.pesquisa) {
         const termo = this.pesquisa.toLowerCase();
         lista = lista.filter(p =>
-          p.nomecompleto.toLowerCase().includes(termo)
+          p.usuario.nome.toLowerCase().includes(termo)
         );
       }
 
       if (this.filtroTurma !== "Todos") {
-        lista = lista.filter(p => p.turma === this.filtroTurma);
+        lista = lista.filter(p => p.turma.nome === this.filtroTurma);
       }
 
       if (this.filtroSexo !== "Todos") {
-        lista = lista.filter(p => p.sexo === this.filtroSexo);
+        lista = lista.filter(p => p.usuario.sexo === this.filtroSexo);
       }
 
       if (this.filtroStatus !== "Todos") {
         const ativo = this.filtroStatus === "Ativo";
-        lista = lista.filter(p => p.status === ativo);
+        lista = lista.filter(p => p.usuario.ativo === ativo);
       }
 
       lista.sort((a, b) => {
-        const A = a.nomecompleto.toLowerCase();
-        const B = b.nomecompleto.toLowerCase();
+        const A = a.usuario.nome.toLowerCase();
+        const B = b.usuario.nome.toLowerCase();
 
         return this.filtroOrdem === "Crescente"
           ? A.localeCompare(B)
@@ -234,90 +224,58 @@ export default {
 
   methods: {
     async buscarCatequizandos() {
-  try {
-    const response = await api.get('/api/Catequizando');
+      try{
+        this.listacatequizandos = await CatequizandoService.listar();
+      } catch(error){
+        console.error("Erro ao buscar catequizandos", error)
+      }
+    },
 
-    if (response.status === 200) {
-      this.listacatequizandos = response.data.map((item: any) => {
-      const idTurma = item.catequizandoTurmas?.[0]?.id_turma_fk ?? null;
-
-      return {
-        id_catequizando: item.id_catequizando,
-        nomecompleto: item.usuario?.nome || "",
-        datanascimento: item.usuario?.data_nascimento || "",
-        sexo: item.usuario?.sexo || "",
-        turma: idTurma ? this.turmasMapa[idTurma] : "Sem turma",
-        telefone: item.usuario?.telefone || "",
-        status: item.usuario?.ativo
-      };
-    });
-
-    }
-  } catch (error) {
-    console.error("Erro ao buscar catequizandos:", error);
-  }
-},
-
-async buscarTurmas() {
-  const response = await api.get("/api/Turma");
-  this.turmasMapa = {};
-
-  response.data.forEach((t: any) => {
-    this.turmasMapa[t.id_turma] = t.nome; 
-  });
-},
-
-
-async deletarCatequizando(id: number) {
-  try {
-    const confirm = await Swal.fire({
-      title: "Confirmar exclusão",
-      text: "Deseja realmente excluir este catequizando?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sim, excluir",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const response = await api.delete(`/api/Catequizando/${id}`);
-
-    if (response.status === 200 || response.status === 204) {
-
-      await Swal.fire({
-        icon: "success",
-        title: "Excluído!",
-        text: "O catequizando foi removido com sucesso.",
+  async deletarCatequizando(id: number) {
+    try {
+      const confirm = await Swal.fire({
+        title: "Tem certeza?",
+        text: "Essa ação não pode ser desfeita!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sim, excluir",
+        cancelButtonText: "Cancelar",
       });
 
-      this.buscarCatequizandos();
+      if (!confirm.isConfirmed) return;
+
+      try {
+
+        await CatequizandoService.excluir(id);
+
+        await Swal.fire({
+          icon: "success",
+          title: "Excluído!",
+          text: "Catequizando foi removido com sucesso.",
+        });
+        this.buscarCatequizandos();
+      } catch (error) {
+        console.error("Erro ao excluir: ", error);
+        Swal.fire
+      }
+
+    } catch (error) {
+      console.error("Erro ao excluir catequizando:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Erro",
+        text: "Não foi possível excluir o catequizando.",
+      });
     }
-
-  } catch (error) {
-    console.error("Erro ao excluir catequizando:", error);
-
-    Swal.fire({
-      icon: "error",
-      title: "Erro",
-      text: "Não foi possível excluir o catequizando.",
-    });
   }
-}
-
-
-
-  },
+    },
 
   mounted() {
-    this.buscarTurmas().then(() => {
     this.buscarCatequizandos();
-  });
   }
 };
 </script>
-
-
 
 <style>
 .page-wrapper {

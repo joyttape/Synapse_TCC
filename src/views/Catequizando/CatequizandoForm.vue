@@ -32,13 +32,13 @@
 
                       <div class="col-md-6 mb-3">
                         <label class="form-label">Telefone <span class="text-danger">*</span></label>
-                        <input v-model="form.telefone" @input="mascaraTelefone('telefone')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                        <input v-model="form.telefonecatequizando" @input="onInputTelefone($event, 'telefonecatequizando')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
                       </div>
 
                       <div class="col-md-6 d-flex gap-3 mb-3 align-items-end">
                         <div class="flex-fill">
                           <label class="form-label">Data de Nascimento <span class="text-danger">*</span></label>
-                          <input v-model="form.nascimento" @input="mascaraData" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
+                          <input v-model="form.nascimento" @input="onInputData" type="text" class="form-control input-small" placeholder="dd/mm/aaaa" />
                         </div>
 
                         <div class="flex-fill">
@@ -80,59 +80,59 @@
                       </div>
 
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Nome do Pai <span class="text-danger">*</span></label>
-                        <input v-model="form.nomepai" type="text" class="form-control input-sim" />
+                        <label class="form-label">Nome - Responsável 1 <span class="text-danger">*</span></label>
+                        <input v-model="form.responsavel_nome1" type="text" class="form-control input-sim" />
                       </div>
 
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Telefone do Pai <span class="text-danger">*</span></label>
-                        <input v-model="form.telefonepai" @input="mascaraTelefone('telefonepai')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                        <label class="form-label">Telefone Responsável 1 <span class="text-danger">*</span></label>
+                        <input v-model="form.telefone_resp1" @input="onInputTelefone($event, 'telefone_resp1')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
                       </div>
 
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Nome da Mãe <span class="text-danger">*</span></label>
-                        <input v-model="form.nomemae" type="text" class="form-control input-sim" />
+                        <label class="form-label">Nome - Responsável 2 <span class="text-danger">*</span></label>
+                        <input v-model="form.responsavel_nome2" type="text" class="form-control input-sim" />
                       </div>
 
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Telefone da Mãe <span class="text-danger">*</span></label>
-                        <input v-model="form.telefonemae" @input="mascaraTelefone('telefonemae')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
+                        <label class="form-label">Telefone Responsável 2 <span class="text-danger">*</span></label>
+                        <input v-model="form.telefone_resp2" @input="onInputTelefone($event, 'telefone_resp2')" type="text" class="form-control input-sim" placeholder="(00) 00000-0000" />
                       </div>
 
                       <div class="col-md-6 mb-3">
                         <label class="form-label">Email <span class="text-danger">*</span></label>
-                        <input v-model="form.email" type="email" class="form-control input-sim" placeholder="seuemail@email.com" />
+                        <input v-model="form.email" @input="limitarEmail" type="email" class="form-control input-sim" placeholder="seuemail@email.com" />
                       </div>
 
                       <div class="col-md-3 mb-3">
                           <label class="form-label">Possui pais juntos? <span class="text-danger">*</span></label>
                           <div class="checkbox-group">
-                            <label><input type="radio" value="true" v-model="form.paisjuntos"> Sim</label>
-                            <label><input type="radio" value="false" v-model="form.paisjuntos"> Não</label>
+                            <label><input type="radio" :value="true" v-model="form.paisjuntos"> Sim</label>
+                            <label><input type="radio" :value="false" v-model="form.paisjuntos"> Não</label>
                           </div>
                         </div>
 
                         <div class="col-md-3 mb-3">
                           <label class="form-label">Frequenta outras igrejas? <span class="text-danger">*</span></label>
                           <div class="checkbox-group">
-                            <label><input type="radio" value="true" v-model="form.frequentaigrejas"> Sim</label>
-                            <label><input type="radio" value="false" v-model="form.frequentaigrejas"> Não</label>
+                            <label><input type="radio" :value="true" v-model="form.frequentaigrejas"> Sim</label>
+                            <label><input type="radio" :value="false" v-model="form.frequentaigrejas"> Não</label>
                           </div>
                         </div>
 
                         <div class="col-md-3 mb-3">
                           <label class="form-label">É batizado(a)? <span class="text-danger">*</span></label>
                           <div class="checkbox-group">
-                            <label><input type="radio" value="true" v-model="form.batizado"> Sim</label>
-                            <label><input type="radio" value="false" v-model="form.batizado"> Não</label>
+                            <label><input type="radio" :value="true" v-model="form.batizado"> Sim</label>
+                            <label><input type="radio" :value="false" v-model="form.batizado"> Não</label>
                           </div>
                         </div>
 
                         <div class="col-md-3 mb-3">
                           <label class="form-label">Frequenta a comunidade? <span class="text-danger">*</span></label>
                           <div class="checkbox-group">
-                            <label><input type="radio" value="true" v-model="form.frequentacomunidade"> Sim</label>
-                            <label><input type="radio" value="false" v-model="form.frequentacomunidade"> Não</label>
+                            <label><input type="radio" :value="true" v-model="form.frequentacomunidade"> Sim</label>
+                            <label><input type="radio" :value="false" v-model="form.frequentacomunidade"> Não</label>
                           </div>
                       </div>
 
@@ -188,7 +188,7 @@
 
                   <div class="col-md-3 mb-3">
                     <label class="form-label">CEP <span class="text-danger">*</span></label>
-                    <input v-model="form.cep" @input="mascaraCEP" type="text" class="form-control input-small" placeholder="00000-000" />
+                    <input v-model="form.cep" @input="onInputCEP" type="text" class="form-control input-small" placeholder="00000-000" />
                   </div>
                 </div>
               </div>
@@ -207,7 +207,9 @@
 
 <script lang="ts">
 import SideBar from '@/components/SideBar.vue';
-import { api } from '@/common/http';
+import { CatequizandoService } from '@/services/CatequizandoService';
+import { ComunidadeService } from '@/services/ComunidadeService';
+import { masks } from '@/utils/masks';
 import Swal from 'sweetalert2';
 
 
@@ -219,12 +221,10 @@ export default {
   data() {
     return {
       isSideBarRecolhida: true,
-
-      comunidades: [],
-
+      comunidades: [] as any[],
       form: {
         nome: '',
-        telefone: '',
+        telefonecatequizando: '',
         nascimento: '',
         email: '',
         sexo: '',
@@ -234,10 +234,10 @@ export default {
         frequentaigrejas: null,
         frequentacomunidade: null,
 
-        nomepai: '',
-        nomemae: '',
-        telefonepai: '',
-        telefonemae: '',
+        responsavel_nome1: '',
+        responsavel_nome2: '',
+        telefone_resp1: '',
+        telefone_resp2: '',
 
         id_comunidade_fk: '',
 
@@ -250,185 +250,74 @@ export default {
         cep: ''
       }
     };
+  },
+
+  methods:{
+
+    async buscarComunidades() {
+
+      try{
+         this.comunidades = await ComunidadeService.listar() 
+      } catch (err) {
+        console.error("Erro ao carregar comunidades: ", err)
+      }
+    },
+
+    onInputTelefone(
+  event: Event,
+  campo: 'telefonecatequizando' | 'telefone_resp1' | 'telefone_resp2'
+) {
+  const input = event.target as HTMLInputElement;
+
+  this.form[campo] = masks.telefone(input.value);
+},
+    onInputData(e: any) {
+      this.form.nascimento = masks.data(e.target.value);
+    },
+
+    onInputCEP(e: any) {
+      this.form.cep = masks.cep(e.target.value);
+    },
+
+    limitarEmail(e: any) {
+      this.form.email = e.target.value.slice(0, 100);
+    },
+
+    async salvar() {
+      try {
+        await CatequizandoService.cadastrarCatequizando(this.form);
+        await Swal.fire({
+          icon: "success",
+          title: "Sucesso!",
+          text: "Catequizando cadastrado com sucesso.",
+        });
+        this.$router.push('/Catequizando');
+      } catch (error: any) {
+        console.log("DETALHES DO ERRO 400:", error.response?.data);
+      }
+    },
+
+    async confirmarVoltar() {
+      const result = await Swal.fire({
+        title: 'Deseja realmente voltar?',
+        text: "Todos os dados preenchidos serão perdidos.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sim, voltar",
+        cancelButtonText: "Cancelar",
+      });
+
+      if (result.isConfirmed) {
+        this.$router.push('/Catequizando');
+      }
+    }
   },
 
   mounted() {
     this.buscarComunidades();
   },
 
-  methods: {
-    async buscarComunidades() {
-      try {
-        const { data } = await api.get("/api/Comunidade");
-        this.comunidades = Array.isArray(data) ? data : (data.items || []);
-      } catch (err) {
-        console.error("Erro ao carregar comunidades:", err);
-      }
-    },
-
-    mascaraTelefone(campo) {
-      let v = this.form[campo] || "";
-      v = v.replace(/\D/g, "");
-      v = v.replace(/(\d{2})(\d)/, "($1) $2");
-      v = v.replace(/(\d{5})(\d)/, "$1-$2");
-      v = v.slice(0, 15);
-
-      this.form[campo] = v;
-    },
-
-    mascaraData(e: any) {
-      let v = e.target.value.replace(/\D/g, "");
-      v = v.slice(0, 8);
-      v = v.replace(/(\d{2})(\d)/, "$1/$2");
-      v = v.replace(/(\d{2})(\d)/, "$1/$2");
-
-      e.target.value = v;
-      this.form.nascimento = v;
-    },
-
-    mascaraCEP(e: any) {
-      let v = e.target.value.replace(/\D/g, "");
-      v = v.slice(0, 8);
-      v = v.replace(/(\d{5})(\d)/, "$1-$2");
-
-      e.target.value = v;
-      this.form.cep = v;
-    },
-
-    limitarEmail(e: any) {
-      let v = e.target.value;
-      v = v.slice(0, 100);
-
-      e.target.value = v;
-      this.form.email = v;
-    },
-
-    converterData(data) {
-      if (!data) return null;
-
-      const parts = data.split("/");
-      if (parts.length !== 3) return null;
-
-      const [dia, mes, ano] = parts;
-
-      return `${ano}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
-    },
-
-    async confirmarVoltar() {
-        const result = await Swal.fire({
-          title: "Deseja realmente voltar?",
-          text: "Todos os dados preenchidos serão perdidos.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Sim, voltar",
-          cancelButtonText: "Cancelar",
-        });
-
-        if (result.isConfirmed) {
-          this.$router.push("/Catequizando");
-        }
-      },
-
-    limparFormulario() {
-      this.form = {
-        nome: '',
-        telefone: '',
-        nascimento: '',
-        email: '',
-        sexo: '',
-        ativo: null,
-        batizado: null,
-        paisjuntos: null,
-        frequentaigrejas: null,
-        frequentacomunidade: null,
-
-        nomepai: '',
-        nomemae: '',
-        telefonepai: '',
-        telefonemae: '',
-
-        id_comunidade_fk: '',
-
-        logradouro: '',
-        complemento: '',
-        bairro: '',
-        estado: '',
-        cidade: '',
-        numero: '',
-        cep: ''
-      };
-    },
-
-    async salvar() {
-  try {
-    const confirm = await Swal.fire({
-      title: "Confirmar cadastro?",
-      text: "Deseja realmente cadastrar este catequizando?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Sim, salvar",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    if (!this.form) {
-      Swal.fire("Atenção", "O nome é obrigatório", "warning");
-      return;
-    }
-
-    const payload = {
-      batizado: Boolean(this.form.batizado),
-      frequenta_comunidade: Boolean(this.form.frequentacomunidade),
-      frequenta_outras_igrejas: Boolean(this.form.frequentaigrejas),
-      pais_juntos: Boolean(this.form.paisjuntos),
-
-      nome_pai: this.form.nomepai || null,
-      telefone_pai: this.form.telefonepai || null,
-      nome_mae: this.form.nomemae || null,
-      telefone_mae: this.form.telefonemae || null,
-
-      usuario: {
-        nome: this.form.nome,
-        data_nascimento: this.converterData(this.form.nascimento),
-        telefone: this.form.telefone,
-        email: this.form.email,
-        sexo: this.form.sexo,
-        ativo: Boolean(this.form.ativo),
-
-        endereco: {
-          logradouro: this.form.logradouro,
-          numero: this.form.numero,
-          complemento: this.form.complemento,
-          bairro: this.form.bairro,
-          cidade: this.form.cidade,
-          estado: this.form.estado,
-          cep: this.form.cep,
-          uf: this.form.estado.substring(0, 2).toUpperCase()
-        },
-
-        id_comunidade_fk: Number(this.form.id_comunidade_fk) || 0
-      }
-    };
-
-    await api.post("/api/Catequizando", payload);
-
-    await Swal.fire({
-      title: "Sucesso!",
-      text: "Catequizando cadastrado com sucesso!",
-      icon: "success",
-      timer: 1800,
-      showConfirmButton: false,
-    });
-
-    this.$router.push(`/Catequizando?salvo=${encodeURIComponent(this.form.nome)}`);
-
-  } catch (err) {
-    console.error(err);
-    Swal.fire("Erro", "Ocorreu um erro ao salvar o catequizando.", "error");
-  }
-}
-  }
+ 
 };
 </script>
 

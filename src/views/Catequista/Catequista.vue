@@ -82,13 +82,13 @@
               </thead>
               <tbody>
                 <tr v-for="(pessoa,index) in listaPaginada" :key="index">
-                  <td>{{ pessoa.nomecompleto }}</td>
-                  <td>{{ pessoa.datanascimento }}</td>
-                  <td>{{ pessoa.sexo }}</td>
-                  <td>{{ pessoa.email }}</td>
-                  <td>{{ pessoa.telefone }}</td>
+                  <td>{{ pessoa.usuario.nome }}</td>
+                  <td>{{ pessoa.usuario.data_nascimento }}</td>
+                  <td>{{ pessoa.usuario.sexo }}</td>
+                  <td>{{ pessoa.usuario.email }}</td>
+                  <td>{{ pessoa.usuario.telefone }}</td>
                   <td>
-                    {{ pessoa.status ? 'Ativo' : 'Inativo' }}
+                    {{ pessoa.usuario.ativo ? 'Ativo' : 'Inativo' }}
                   </td>
                   <td class="action-buttons">
                      <RouterLink :to="`/Catequista/Detalhes/${pessoa.id_catequista}`">
@@ -130,26 +130,16 @@
 
 <script lang="ts">
 import SideBar from '@/components/SideBar.vue';
-import axios from 'axios';
-import {api} from '@/common/http';
+import { CatequistaService } from '@/services/CatequistaService';
+import type { Catequista } from '@/types/Catequista';
 import Swal from 'sweetalert2';
 
 export default {
-  name: "Catequista",
+  name: "Catequistas",
   data(){
     return{
       isSideBarRecolhida: true, 
-      listacatequistas: [] as Array <{
-        id_catequista: number,
-        nomecompleto: string,
-        datanascimento: string,
-        sexo: string,
-        email: string,
-        telefone: string,
-        status: boolean
-      }>,
-
-
+      listacatequistas:[] as Catequista [] ,
       pesquisa: "", 
       filtroOrdem: "Crescente",
       filtroSexo: "Todos",
@@ -170,23 +160,23 @@ export default {
       if(this.pesquisa){
         const termo = this.pesquisa.toLowerCase();
         lista = lista.filter(p =>
-          p.nomecompleto.toLowerCase().includes(termo)
+          p.usuario.nome.toLowerCase().includes(termo)
         );
       }
 
       if(this.filtroSexo !== "Todos"){
-        lista = lista.filter(p => p.sexo === this.filtroSexo)
+        lista = lista.filter(p => p.usuario.sexo === this.filtroSexo)
       }
 
       if(this.filtroStatus !== "Todos"){
         const ativo = this.filtroStatus === "Ativo";
-        lista = lista.filter(p => p.status === ativo)
+        lista = lista.filter(p => p.usuario.ativo === ativo)
       }
 
       lista.sort((a,b) => {
 
-        const A = a.nomecompleto.toLowerCase();
-        const B = b.nomecompleto.toLowerCase();
+        const A = a.usuario.nome.toLowerCase();
+        const B = b.usuario.nome.toLowerCase();
 
         return this.filtroOrdem === "Crescente"
             ? A.localeCompare(B)
@@ -224,74 +214,48 @@ export default {
 
   methods:{
 
-    async buscarCatequistas(){
-
+    async buscarCatequistas() {
       try{
-
-        const response = await api.get('/api/Catequista');
-
-        if(response.status === 200){
-          this.listacatequistas = response.data.map((item:any) => ({
-
-            id_catequista: item.id_catequista,
-            nomecompleto: item.usuario?.nome || "",
-            datanascimento: item.usuario?.data_nascimento || "",
-            sexo: item.usuario?.sexo || "",
-            email: item.usuario?.email || "",
-            telefone: item.usuario?.telefone || "",
-            status: item.usuario?.ativo 
-          }));
-        }
-      } catch(error){
-        console.error("Erro ao buscar catequistas: ", error)
+         this.listacatequistas = await CatequistaService.listar();
+      } catch (error){
+        console.error("Erro ao buscar catequistas", error);
       }
     },
 
-    async deletarCatequista(id:number){
+    async deletarCatequista(id: number) {
+      const confirm = await Swal.fire({
+        title: "Tem certeza?",
+        text: "Essa ação não pode ser desfeita!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sim, excluir",
+        cancelButtonText: "Cancelar",
+      });
 
-      try{
+      if (!confirm.isConfirmed) return;
 
-        const confirm = await Swal.fire({
-          title: "Confirmar exclusão",
-          text: "Deseja realmente excluir este catequista?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Sim, excluir",
-          cancelButtonText: "Cancelar",
+      try {
+
+        await CatequistaService.excluir(id);
+        
+        await Swal.fire({
+          icon: "success",
+          title: "Excluído!",
+          text: "Catequista foi removido com sucesso.",
         });
 
-        if(!confirm.isConfirmed) return;
-
-        const response = await api.delete(`/api/Catequista/${id}`);
-
-        if(response.status === 200 || response.status === 204){
-
-          await Swal.fire({
-            icon: "success",
-            title: "Excluído!",
-            text: "Catequista foi removido com sucesso.",
-          });
-
-          this.buscarCatequistas();
-        }
-      } catch(error){
-        console.error("Erro ao excluir catequizando", error)
-
-        Swal.fire({
-          icon: "error",
-          title: "Erro",
-          text: "Não foi possível excluir o catequista.",
-        });
+        this.buscarCatequistas();
+      } catch (error) {
+        console.error("Erro ao excluir:", error);
+        Swal.fire("Erro", "Não foi possível excluir o catequista.", "error");
       }
     }
   },
-
   mounted(){
     this.buscarCatequistas();
   }
 
 }
-  
 </script>
 
 <style>

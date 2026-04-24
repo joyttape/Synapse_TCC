@@ -52,11 +52,6 @@
                         <label class="form-label">Data de Admissão <span class="text-danger">*</span></label>
                         <input v-model="form.admissao" type="text" class="form-control input-small" readonly/>
                       </div>
-
-                      <div class="flex-fill">
-                        <label class="form-label">Formação <span class="text-danger">*</span></label>
-                        <input v-model="form.formacao" type="text" class="form-control input-small" readonly/>
-                      </div>
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -147,119 +142,88 @@
 </template>
 
 <script lang="ts">
-import { reactive, ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { api } from "@/common/http";
-import SideBar from "@/components/SideBar.vue";
+import SideBar from '@/components/SideBar.vue';
+import { CatequistaService } from '@/services/CatequistaService';
+import { ComunidadeService } from '@/services/ComunidadeService';
+import { masks } from '@/utils/masks';
+import Swal from 'sweetalert2';
 
 export default {
-  name: "ViewCatequista",
+  name: 'ViewCatequista',
   components: { SideBar },
-
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-
-    const isSideBarRecolhida = ref(true);
-    const comunidades = ref([]); 
-
-    const form = reactive({
-      admissao: "",
-      formacao: "",
-      nome: "",
-      telefone: "",
-      nascimento: "",
-      ativo: "",
-      email: "",
-      sexo: "",
-      id_comunidade_fk: '', 
-
-      logradouro: "",
-      complemento: "",
-      bairro: "",
-      estado: "",
-      cidade: "",
-      numero: "",
-      cep: ""
-    });
-
-    async function buscarComunidades() {
-      try {
-        const resposta = await api.get('/api/Comunidade');
-        comunidades.value = resposta.data;
-      } catch (error) {
-        console.error('Erro ao buscar comunidades:', error);
-      }
-    }
-
-    function formatarTelefone(valor: string) {
-      if (!valor) return "";
-      return valor
-        .replace(/\D/g, "")
-        .replace(/(\d{2})(\d)/, "($1) $2")
-        .replace(/(\d{5})(\d)/, "$1-$2")
-        .slice(0, 15);
-    }
-
-    function formatarCEP(valor: string) {
-      if (!valor) return "";
-      return valor.replace(/\D/g, "").replace(/(\d{5})(\d)/, "$1-$2").slice(0, 9);
-    }
-
-    function formatarDataISOparaBR(data: string) {
-      if (!data) return "";
-      return data.split("-").reverse().join("/");
-    }
-
-    async function carregarCatequista(id: number) {
-  try {
-    const { data } = await api.get(`/api/Catequista/${id}`);
-    form.formacao = data.formacao ?? "";
-    form.admissao = data.data_admissao ? formatarDataISOparaBR(data.data_admissao) : "";
-
-    const u = data.usuario ?? {};
-    const e = u.endereco ?? {};
-
-    form.nome = u.nome ?? "";
-    form.telefone = formatarTelefone(u.telefone ?? "");
-    form.nascimento = u.data_nascimento ? formatarDataISOparaBR(u.data_nascimento) : "";
-    form.ativo = u.ativo ?? false;
-    form.email = u.email ?? "";
-    form.sexo = u.sexo ?? "";
-
-    form.id_comunidade_fk = u.comunidade?.id_comunidade ?? 0;
-
-    form.logradouro = e.logradouro ?? "";
-    form.complemento = e.complemento ?? "";
-    form.bairro = e.bairro ?? "";
-    form.estado = e.estado ?? "";
-    form.cidade = e.cidade ?? "";
-    form.numero = e.numero ?? "";
-    form.cep = formatarCEP(e.cep ?? "");
-  } catch (error) {
-    console.error("Erro ao carregar catequista:", error);
-    router.push("/Catequista");
-  }
-}
-
-
-    onMounted(() => {
-      buscarComunidades();
-
-      const idParam = route.params.id;
-      const id = Number(idParam);
-      if (!id) {
-        console.error("ID não encontrado na URL");
-        return;
-      }
-      carregarCatequista(id);
-    });
-
+  data() {
     return {
-      form,
-      comunidades,
-      isSideBarRecolhida
+      isSideBarRecolhida: true,
+      comunidades: [] as any[],
+      id: 0,
+      form: {
+        admissao: '',
+        nome: '',
+        telefone: '',
+        nascimento: '',
+        ativo: null as boolean | null,
+        email: '',
+        sexo: '',
+        id_comunidade_fk: '',
+        logradouro: '',
+        complemento: '',
+        bairro: '',
+        estado: '',
+        cidade: '',
+        numero: '',
+        cep: ''
+      }
     };
+  },
+
+  methods: {
+    async carregarDados() {
+      try {
+        this.id = Number(this.$route.params.id);
+        const dados = await CatequistaService.buscarPorId(this.id);
+        
+        console.log("DADOS DA API:", dados);
+        console.log("ID DA COMUNIDADE QUE VEIO:", dados.usuario.id_comunidade_fk);
+        console.log("LISTA DE COMUNIDADES CARREGADA:", this.comunidades);
+
+        this.form = {
+          admissao: masks.data(dados.data_admissao),
+          nome: dados.usuario.nome,
+          telefone: masks.telefone(dados.usuario.telefone),
+          nascimento: masks.data(dados.usuario.data_nascimento),
+          ativo: dados.usuario.ativo,
+          email: dados.usuario.email,
+          sexo: dados.usuario.sexo,
+          id_comunidade_fk: dados.usuario.comunidade ? Number(dados.usuario.comunidade.id_comunidade) : null,
+          logradouro: dados.usuario.endereco.logradouro,
+          complemento: dados.usuario.endereco.complemento,
+          bairro: dados.usuario.endereco.bairro,
+          estado: dados.usuario.endereco.estado,
+          cidade: dados.usuario.endereco.cidade,
+          numero: dados.usuario.endereco.numero,
+          cep: masks.cep(dados.usuario.endereco.cep)
+        };
+      } catch (error) {
+        Swal.fire("Erro", "Não foi possível carregar os dados do catequista.", "error");
+      }
+    },
+
+    async buscarComunidades() {
+      this.comunidades = await ComunidadeService.listar();
+    },
+
+    onInputTelefone(e: any) { this.form.telefone = masks.telefone(e.target.value); },
+    onInputData(e: any, campo: 'nascimento' | 'admissao') { this.form[campo] = masks.data(e.target.value); },
+    onInputCEP(e: any) { this.form.cep = masks.cep(e.target.value); },
+
+    async confirmarVoltar() {   
+          this.$router.push('/Catequista');
+      }
+  },
+
+  async mounted() {
+    await this.buscarComunidades();
+    await this.carregarDados();
   }
 };
 </script>
